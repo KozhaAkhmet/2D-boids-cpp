@@ -51,6 +51,7 @@ void Fish::setTextureInPlace(std::string file_path) {
 
 std::vector<Fish> Fish::getCollisions(const std::vector<Fish>& from) {
   std::vector<Fish> nearest;
+  //TODO render a collision debugger 
   for (auto& s : from) {
     if (this->getDistance(s.getPosition()) < col_radius) {
       sf::Vector2f sub_vec = this->getPosition() - s.getPosition();
@@ -73,6 +74,8 @@ void Fish::avoid(const std::vector<Fish>& from) {
     sum += getPosition() - n.getPosition();
     count++;
   }
+  //TODO Does the conditions nessesary?
+  //TODO simplyfy the atan2(sub.x,sub.y) to distribute throught methods
   float rad, sub;
   sum.y = -sum.y;
   if (sum.y < 0) {
