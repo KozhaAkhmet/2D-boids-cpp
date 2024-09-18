@@ -10,7 +10,8 @@ class Fish : public sf::CircleShape {
 
   float col_radius;
   float speed;
-  float dir;
+  double dir;
+  float turn_speed = 0.01f;
 
  public:
   static int count;

@@ -11,7 +11,7 @@ int main() {
   const int window_size_x = 500;
   const int window_size_y = 500;
   const int max_framerate = 144;
-  const float speed = 20.F;
+  const float speed = 100.F;
   const float dt = 0.0069444445F;
 
   float rad = M_2_PI / 3;

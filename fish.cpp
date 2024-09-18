@@ -23,9 +23,12 @@ void Fish::setCollisionRadius(float col) { this->col_radius = col; }
 void Fish::setSpeed(float speed) { this->speed = speed; }
 
 void Fish::setDirection(float rad) {
-  this->dir = rad;
-  this->setRotation(rad * 180 / PI);
+  float sub = dir - rad;
+  this->dir += abs(rad) / rad * this->turn_speed;
+  this->setRotation(this->dir * 180 / PI);
+  // std::cout << this->dir << std::endl;
 }
+// }
 
 float Fish::getDirection() { return this->dir; }
 
@@ -36,7 +39,7 @@ float Fish::getDistance(const sf::CircleShape& a, const sf::CircleShape& b) {
 
 float Fish::getDistance(const sf::Vector2f& b) {
   sf::Vector2f sub = this->getPosition() - b;
-  return sub.x * sub.x + sub.y * sub.y;
+  return sqrt(sub.x * sub.x + sub.y * sub.y);
 }
 
 void Fish::setTextureInPlace(std::string file_path) {
@@ -48,9 +51,15 @@ void Fish::setTextureInPlace(std::string file_path) {
 
 std::vector<Fish> Fish::getCollisions(const std::vector<Fish>& from) {
   std::vector<Fish> nearest;
-  for (auto& sub : from) {
-    if (this->getDistance(sub.getPosition()) < col_radius * col_radius) {
-      nearest.push_back(sub);
+  for (auto& s : from) {
+    if (this->getDistance(s.getPosition()) < col_radius) {
+      sf::Vector2f sub_vec = this->getPosition() - s.getPosition();
+      float rad = -atan2(sub_vec.x, sub_vec.y);
+
+      if (0 < (rad - this->dir) && (rad - this->dir) < PI) {
+        std::cout << (rad - this->dir) * 180 / PI << std::endl;
+        nearest.push_back(s);
+      }
     }
   }
   return nearest;
@@ -64,29 +73,22 @@ void Fish::avoid(const std::vector<Fish>& from) {
     sum += getPosition() - n.getPosition();
     count++;
   }
-  float rad = atan(sum.x / sum.y);
-  // if (rad < 0) rad + PI / 2;
+  float rad, sub;
   sum.y = -sum.y;
-  if (sum.x < 0 && sum.y < 0) {
+  if (sum.y < 0) {
     // third
-    setDirection(-(rad) + PI / 2);
+    rad = -(atan(sum.x / sum.y) - PI / 2);
+    float sub = dir - rad;
+    // if (-PI / 2 < sub && sub < PI / 2)
+    setDirection(rad);
 
-  } else if (sum.x < 0 && sum.y > 0) {
+  } else if (sum.y > 0) {
     // second
-    setDirection(-(rad + PI / 2));
-
-  } else if (sum.x > 0 && sum.y > 0) {
-    // first
-    setDirection(-rad - PI / 2);
-
-  } else if (sum.x > 0 && sum.y < 0) {
-    // fourth
-    setDirection(-(rad - PI / 2));
-  } else if (sum == sf::Vector2f(0, 0)) {
+    rad = -(atan(sum.x / sum.y) + PI / 2);
+    float sub = dir - rad;
+    // if (-PI / 2 < sub && sub < PI / 2)
+    setDirection(rad);
   }
-
-  // std::cout << sum.x << " " << sum.y << " " << rad * 180 / PI << " " << count
-  //           << std::endl;
 }
 
 Fish::~Fish() {}
