@@ -18,6 +18,7 @@ class Fish : public sf::CircleShape {
   Fish();
   Fish(float col_radius, float speed, float size, float dir, float dt,
        sf::Vector2f pos);
+void drawCollisionDebug(sf::RenderWindow& window);
   float getDistance(const sf::CircleShape& a, const sf::CircleShape& b);
   float getDistance(const sf::Vector2f& b);
   void setTextureInPlace(std::string file_path);
@@ -27,5 +28,8 @@ class Fish : public sf::CircleShape {
   void setSpeed(float speed);
   void setDirection(float rad);
   float getDirection();
+
+  sf::CircleShape collision;
+  sf::VertexArray lines;
   ~Fish();
 };

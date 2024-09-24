@@ -17,6 +17,16 @@ Fish::Fish(float col_radius, float speed, float size, float dir = 0,
   this->setPosition(pos);
   count++;
 }
+void Fish::drawCollisionDebug(sf::RenderWindow& window) {
+  // this->collision.setOrigin(col_radius, col_radius);
+  // this->collision.setRadius(col_radius);
+  // if (detected)
+  //   this->collision.setFillColor(sf::Color::White);
+  // else
+  //   this->collision.setFillColor(sf::Color::Red);
+  // this->collision.setPosition(this->getPosition());
+  window.draw(this->lines);
+}
 
 void Fish::setCollisionRadius(float col) { this->col_radius = col; }
 
@@ -51,18 +61,26 @@ void Fish::setTextureInPlace(std::string file_path) {
 
 std::vector<Fish> Fish::getCollisions(const std::vector<Fish>& from) {
   std::vector<Fish> nearest;
-  //TODO render a collision debugger 
-  for (auto& s : from) {
-    if (this->getDistance(s.getPosition()) < col_radius) {
-      sf::Vector2f sub_vec = this->getPosition() - s.getPosition();
+  // sf::PrimitiveType::TriangleFan tri()
+  // TODO render a collision debugger
+  sf::VertexArray lines(sf::Lines, from.size() * 2);
+  for (int i = 0; i < from.size(); i++) {
+    if (this->getDistance(from[i].getPosition()) < col_radius) {
+      sf::Vector2f sub_vec = this->getPosition() - from[i].getPosition();
       float rad = -atan2(sub_vec.x, sub_vec.y);
 
       if (0 < (rad - this->dir) && (rad - this->dir) < PI) {
-        std::cout << (rad - this->dir) * 180 / PI << std::endl;
-        nearest.push_back(s);
-      }
+        // std::cout << (rad - this->dir) * 180 / PI << std::endl;
+        detected = true;
+        lines[i * 2 + 1].position = this->getPosition();
+        lines[i * 2 + 1].color = sf::Color::Black;
+        lines[i * 2].position = from[i].getPosition();
+        nearest.push_back(from[i]);
+      } else
+        detected = false;
     }
   }
+  this->lines = lines;
   return nearest;
 }
 
@@ -74,8 +92,8 @@ void Fish::avoid(const std::vector<Fish>& from) {
     sum += getPosition() - n.getPosition();
     count++;
   }
-  //TODO Does the conditions nessesary?
-  //TODO simplyfy the atan2(sub.x,sub.y) to distribute throught methods
+  // TODO Does the conditions nessesary?
+  // TODO simplyfy the atan2(sub.x,sub.y) to distribute throught methods
   float rad, sub;
   sum.y = -sum.y;
   if (sum.y < 0) {

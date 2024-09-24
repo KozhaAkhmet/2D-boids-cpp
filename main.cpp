@@ -77,6 +77,7 @@ int main() {
       temp[i].y += speed * dt * sin(clown_fish[i].getDirection());
       clown_fish[i].setPosition(temp[i]);
       clown_fish[i].avoid(clown_fish);
+      clown_fish[i].drawCollisionDebug(window);
     }
     dummyfish.avoid(clown_fish);
     window.draw(dummy);
