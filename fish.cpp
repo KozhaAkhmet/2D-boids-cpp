@@ -5,6 +5,30 @@
 
 int Fish::count = 0;
 
+void Fish::drawTrimmedCircle(float deg_value) {
+  int resolution = 10;
+  sf::Vector2f init_pos = this->getPosition();
+  float view_deg = PI;
+  float cur_deg = PI;
+  // float offset_deg = cur_deg + view_deg / 2 + view_deg - deg_value;  // For 45 degree and view_ang = PI/4
+  // float offset_deg = cur_deg + view_deg / 2 - deg_value;  // For 90 degree and view_ang = PI/2
+  float offset_deg = cur_deg - deg_value;                 // For 180 degree and view_ang = PI
+
+  sf::VertexArray lines(sf::LineStrip, resolution + 3);
+  lines[0].position = init_pos;
+
+  for (int i = 1; i <= resolution + 1; i++) {
+    std::cout << cur_deg << std::endl;
+    lines[i].position.x = sin(cur_deg + offset_deg) * col_radius + init_pos.x;
+    lines[i].position.y = cos(cur_deg + offset_deg) * col_radius + init_pos.y;
+    cur_deg = cur_deg + view_deg / resolution;
+    std::cout << sin(cur_deg) * col_radius + init_pos.x << "   "
+              << cos(cur_deg) * col_radius + init_pos.y << std::endl;
+  }
+  lines[resolution + 2] = init_pos;
+  this->collision_lines = lines;
+}
+
 Fish::Fish() { count++; }
 Fish::Fish(float col_radius, float speed, float size, float dir = 0,
            float dt = 0.0069444445F, sf::Vector2f pos = sf::Vector2f(0, 0)) {

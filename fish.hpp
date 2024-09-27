@@ -15,6 +15,7 @@ class Fish : public sf::CircleShape {
 
  public:
   static int count;
+void drawTrimmedCircle(float deg_value);
   Fish();
   Fish(float col_radius, float speed, float size, float dir, float dt,
        sf::Vector2f pos);
@@ -29,7 +30,8 @@ void drawCollisionDebug(sf::RenderWindow& window);
   void setDirection(float rad);
   float getDirection();
 
-  sf::CircleShape collision;
-  sf::VertexArray lines;
+  sf::VertexArray collision_lines;
+  sf::VertexArray affect_lines;
+
   ~Fish();
 };
