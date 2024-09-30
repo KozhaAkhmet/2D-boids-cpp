@@ -5,30 +5,6 @@
 
 int Fish::count = 0;
 
-void Fish::drawTrimmedCircle(float deg_value) {
-  int resolution = 10;
-  sf::Vector2f init_pos = this->getPosition();
-  float view_deg = PI;
-  float cur_deg = PI;
-  // float offset_deg = cur_deg + view_deg / 2 + view_deg - deg_value;  // For 45 degree and view_ang = PI/4
-  // float offset_deg = cur_deg + view_deg / 2 - deg_value;  // For 90 degree and view_ang = PI/2
-  float offset_deg = cur_deg - deg_value;                 // For 180 degree and view_ang = PI
-
-  sf::VertexArray lines(sf::LineStrip, resolution + 3);
-  lines[0].position = init_pos;
-
-  for (int i = 1; i <= resolution + 1; i++) {
-    std::cout << cur_deg << std::endl;
-    lines[i].position.x = sin(cur_deg + offset_deg) * col_radius + init_pos.x;
-    lines[i].position.y = cos(cur_deg + offset_deg) * col_radius + init_pos.y;
-    cur_deg = cur_deg + view_deg / resolution;
-    std::cout << sin(cur_deg) * col_radius + init_pos.x << "   "
-              << cos(cur_deg) * col_radius + init_pos.y << std::endl;
-  }
-  lines[resolution + 2] = init_pos;
-  this->collision_lines = lines;
-}
-
 Fish::Fish() { count++; }
 Fish::Fish(float col_radius, float speed, float size, float dir = 0,
            float dt = 0.0069444445F, sf::Vector2f pos = sf::Vector2f(0, 0)) {
@@ -41,30 +17,6 @@ Fish::Fish(float col_radius, float speed, float size, float dir = 0,
   this->setPosition(pos);
   count++;
 }
-void Fish::drawCollisionDebug(sf::RenderWindow& window) {
-  // this->collision.setOrigin(col_radius, col_radius);
-  // this->collision.setRadius(col_radius);
-  // if (detected)
-  //   this->collision.setFillColor(sf::Color::White);
-  // else
-  //   this->collision.setFillColor(sf::Color::Red);
-  // this->collision.setPosition(this->getPosition());
-  window.draw(this->lines);
-}
-
-void Fish::setCollisionRadius(float col) { this->col_radius = col; }
-
-void Fish::setSpeed(float speed) { this->speed = speed; }
-
-void Fish::setDirection(float rad) {
-  float sub = dir - rad;
-  this->dir += abs(rad) / rad * this->turn_speed;
-  this->setRotation(this->dir * 180 / PI);
-  // std::cout << this->dir << std::endl;
-}
-// }
-
-float Fish::getDirection() { return this->dir; }
 
 float Fish::getDistance(const sf::CircleShape& a, const sf::CircleShape& b) {
   sf::Vector2f sub = a.getPosition() - b.getPosition();
@@ -76,12 +28,7 @@ float Fish::getDistance(const sf::Vector2f& b) {
   return sqrt(sub.x * sub.x + sub.y * sub.y);
 }
 
-void Fish::setTextureInPlace(std::string file_path) {
-  this->texture.loadFromFile(file_path);
-  this->texture.setSmooth(true);
-  this->texture.generateMipmap();
-  this->setTexture(&texture);
-}
+float Fish::getDirection() { return this->dir; }
 
 std::vector<Fish> Fish::getCollisions(const std::vector<Fish>& from) {
   std::vector<Fish> nearest;
@@ -106,6 +53,56 @@ std::vector<Fish> Fish::getCollisions(const std::vector<Fish>& from) {
   }
   this->lines = lines;
   return nearest;
+}
+
+void Fish::setCollisionRadius(float col) { this->col_radius = col; }
+
+void Fish::setSpeed(float speed) { this->speed = speed; }
+
+void Fish::setDirection(float rad) {
+  float sub = dir - rad;
+  this->dir += abs(rad) / rad * this->turn_speed;
+  this->setRotation(this->dir * 180 / PI);
+  // std::cout << this->dir << std::endl;
+}
+// }
+
+void Fish::setTextureInPlace(std::string file_path) {
+  this->texture.loadFromFile(file_path);
+  this->texture.setSmooth(true);
+  this->texture.generateMipmap();
+  this->setTexture(&texture);
+}
+
+void Fish::drawCollisionDebug(sf::RenderWindow& window) {
+  drawTrimmedCircle(this->dir);
+  window.draw(this->affect_lines);
+  window.draw(this->collision_lines);
+}
+
+void Fish::drawTrimmedCircle(float deg_value) {
+  int resolution = 10;
+  sf::Vector2f init_pos = this->getPosition();
+  float view_deg = PI;
+  float cur_deg = PI;
+  // float offset_deg = cur_deg + view_deg / 2 + view_deg - deg_value;  // For
+  // 45 degree and view_ang = PI/4 float offset_deg = cur_deg + view_deg / 2 -
+  // deg_value;  // For 90 degree and view_ang = PI/2
+  float offset_deg = cur_deg - deg_value;  // For 180 degree and view_ang = PI
+
+  sf::VertexArray lines(sf::LineStrip, resolution + 3);
+  lines[0].position = init_pos;
+
+  for (int i = 1; i <= resolution + 1; i++) {
+    std::cout << cur_deg << std::endl;
+    lines[i].position.x = sin(cur_deg + offset_deg) * col_radius + init_pos.x;
+    lines[i].position.y = cos(cur_deg + offset_deg) * col_radius + init_pos.y;
+    cur_deg = cur_deg + view_deg / resolution;
+    std::cout << sin(cur_deg) * col_radius + init_pos.x << "   "
+              << cos(cur_deg) * col_radius + init_pos.y << std::endl;
+  }
+  lines[resolution + 2] = init_pos;
+  this->collision_lines = lines;
 }
 
 void Fish::avoid(const std::vector<Fish>& from) {
