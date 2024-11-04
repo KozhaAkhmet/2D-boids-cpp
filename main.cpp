@@ -14,8 +14,6 @@ int main() {
   const float speed = 100.F;
   const float dt = 0.0069444445F;
 
-  float rad = M_2_PI / 3;
-
   sf::RenderWindow window(sf::VideoMode(window_size_x, window_size_y),
                           "Boids Algorothm");
   window.setFramerateLimit(max_framerate);
@@ -23,16 +21,8 @@ int main() {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<float> dis(0.0f, 1.0f);
-  sf::Vector2f temp[num_of_fish];
-  int dir = 0;
 
-  std::vector<Fish> clown_fish{num_of_fish};
-
-  sf::Texture texture;
-  texture.loadFromFile("res/fish3.png");
-  texture.setSmooth(true);
-  texture.generateMipmap();
-
+  // -- Creating Dummy Fish For Debug ---
   Fish dummyfish(col_radius * 5, speed, radius, 0, dt, window_size_x / 2,
                  window_size_x / 2);
   dummyfish.setTextureInPlace("res/fish4.png");
@@ -60,15 +50,14 @@ int main() {
       clown_fish[i].updatePosition(window_size_x, window_size_y);
 
       clown_fish[i].avoid(clown_fish);
-      clown_fish[i].drawCollisionDebug(window);
+      // clown_fish[i].drawCollisionDebug(window);
+      dummyfish.drawCollisionDebug(window);
+      dummyfish.avoid(clown_fish);
+      // clown_fish[i].mimicDirection(clown_fish);
     }
-    dummyfish.avoid(clown_fish);
-    window.draw(dummy);
     window.draw(dummyfish);
     for (auto& fish : clown_fish) window.draw(fish);
     window.display();
-    // std::cout << (dummyfish.getCollisions(clown_fish).size())
-    //           << std::endl;
   }
   return 0;
 }
