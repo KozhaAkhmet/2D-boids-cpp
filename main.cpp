@@ -33,28 +33,21 @@ int main() {
   texture.setSmooth(true);
   texture.generateMipmap();
 
-  Fish dummyfish(col_radius*5, speed, radius, 0, dt,
-                 sf::Vector2f(window_size_x / 2, window_size_x / 2));
+  Fish dummyfish(col_radius * 5, speed, radius, 0, dt, window_size_x / 2,
+                 window_size_x / 2);
   dummyfish.setTextureInPlace("res/fish4.png");
   
-  sf::CircleShape dummy;
-  dummy.setOrigin(radius * 5, radius * 5);
-  dummy.setFillColor(sf::Color::White);
-  dummy.setRadius(radius*5);
-  dummy.setPosition((dummyfish.getPosition()));
-
+  //-- Creating Fishes --
+  std::vector<Fish> clown_fish;
+  clown_fish.reserve(num_of_fish);
 
   for (int i = 0; i < num_of_fish; i++) {
-    
-    clown_fish[i].setCollisionRadius(col_radius*5);
-    clown_fish[i].setOrigin(radius, radius);
-    clown_fish[i].setRadius(radius);
+    clown_fish.emplace_back(
+        Fish(col_radius * 5, speed, radius, (dis(gen) * M_2_PI), dt,
+             (dis(gen) * window_size_x), (dis(gen) * window_size_y)));
     clown_fish[i].setTextureInPlace("res/fish2.png");
-    clown_fish[i].setPosition(dis(gen) * window_size_x,
-                              dis(gen) * window_size_y);
-    clown_fish[i].setDirection(dis(gen) * M_2_PI);
-    temp[i] = clown_fish[i].getPosition();
   }
+  // --------------------
 
   while (window.isOpen()) {
     sf::Event event;
@@ -64,18 +57,8 @@ int main() {
 
     window.clear();
     for (int i = 0; i < num_of_fish; i++) {
-      if (temp[i].x > window_size_x)
-        temp[i].x = 0;
-      else if (temp[i].x < 0)
-        temp[i].x = window_size_x;
-      if (temp[i].y > window_size_y)
-        temp[i].y = 0;
-      else if (temp[i].y < 0)
-        temp[i].y = window_size_y;
+      clown_fish[i].updatePosition(window_size_x, window_size_y);
 
-      temp[i].x += speed * dt * cos(clown_fish[i].getDirection());
-      temp[i].y += speed * dt * sin(clown_fish[i].getDirection());
-      clown_fish[i].setPosition(temp[i]);
       clown_fish[i].avoid(clown_fish);
       clown_fish[i].drawCollisionDebug(window);
     }

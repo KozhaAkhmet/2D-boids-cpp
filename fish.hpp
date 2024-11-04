@@ -10,15 +10,16 @@ class Fish : public sf::CircleShape {
 
   float col_radius;
   float speed;
-  float dir;
+  double dir;
   float turn_speed = 0.01f;
 
  public:
   static int count;
 void drawTrimmedCircle(float deg_value);
+  void updatePosition(int window_size_x, int window_size_y);
   Fish();
-  Fish(float col_radius, float speed, float size, float dir, float dt,
-       sf::Vector2f pos);
+  Fish( float col_radius, float speed, float size, float dir, float dt,
+       float pos_x, float pos_y);
 void drawCollisionDebug(sf::RenderWindow& window);
   float getDistance(const sf::CircleShape& a, const sf::CircleShape& b);
   float getDistance(const sf::Vector2f& b);

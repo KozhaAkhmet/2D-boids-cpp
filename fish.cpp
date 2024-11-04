@@ -6,15 +6,18 @@
 int Fish::count = 0;
 
 Fish::Fish() { count++; }
-Fish::Fish(float col_radius, float speed, float size, float dir = 0,
-           float dt = 0.0069444445F, sf::Vector2f pos = sf::Vector2f(0, 0)) {
+Fish::Fish(float col_radius, float speed, float size,
+           float dir = 0, float dt = 0.0069444445F, float pos_x = 0,
+           float pos_y = 0) {
   this->col_radius = col_radius;
   this->speed = speed;
+  this->dt = dt;
   this->dir = dir;
   this->size = size;
   this->setOrigin(size, size);
   this->setRadius(size);
-  this->setPosition(pos);
+  this->setPosition(pos_x, pos_y);
+  // this->setDirection(dir);
   count++;
 }
 
@@ -103,6 +106,22 @@ void Fish::drawTrimmedCircle(float deg_value) {
   }
   lines[resolution + 2] = init_pos;
   this->collision_lines = lines;
+}
+
+void Fish::updatePosition(int window_size_x, int window_size_y) {
+  sf::Vector2f temp = this->getPosition();
+  if (temp.x > window_size_x)
+    temp.x = 0;
+  else if (temp.x < 0)
+    temp.x = window_size_x;
+  if (temp.y > window_size_y)
+    temp.y = 0;
+  else if (temp.y < 0)
+    temp.y = window_size_y;
+
+  temp.x += speed * dt * cos(this->getDirection());
+  temp.y += speed * dt * sin(this->getDirection());
+  this->setPosition(temp);
 }
 
 void Fish::avoid(const std::vector<Fish>& from) {
