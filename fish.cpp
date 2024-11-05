@@ -35,26 +35,35 @@ float Fish::getDirection() { return this->dir; }
 
 std::vector<Fish> Fish::getCollisions(const std::vector<Fish>& from) {
   std::vector<Fish> nearest;
-  // sf::PrimitiveType::TriangleFan tri()
-  // TODO render a collision debugger
   sf::VertexArray lines(sf::Lines, from.size() * 2);
   for (int i = 0; i < from.size(); i++) {
+    // if shorter from certain co_radius
     if (this->getDistance(from[i].getPosition()) < col_radius) {
+      // Get the vector from this to target
       sf::Vector2f sub_vec = this->getPosition() - from[i].getPosition();
-      float rad = -atan2(sub_vec.x, sub_vec.y);
+      // Get the angle of that vector
+      float rad = atan2(sub_vec.x, -sub_vec.y);
 
-      if (0 < (rad - this->dir) && (rad - this->dir) < PI) {
-        // std::cout << (rad - this->dir) * 180 / PI << std::endl;
-        detected = true;
+      double rel_angle = ((this->dir + PI / 2) - rad) < 0
+                             ? ((this->dir + PI / 2) - rad) + 2 * PI
+                             : ((this->dir + PI / 2) - rad);
+
+      rel_angle = rel_angle > 2*PI ? rel_angle - PI*2 : rel_angle ;
+      
+      std::cout << ((this->dir + PI / 2) - rad) * 180 / PI << "  "
+                << rel_angle * 180 / PI << " "
+                << (this->dir - (rad + PI / 2)) * 180 / PI << std::endl;
+
+      if ((PI / 4 < rel_angle && rel_angle < 7 * PI / 4)) {
         lines[i * 2 + 1].position = this->getPosition();
         lines[i * 2 + 1].color = sf::Color::Black;
         lines[i * 2].position = from[i].getPosition();
+        
         nearest.push_back(from[i]);
-      } else
-        detected = false;
+      }
     }
   }
-  this->lines = lines;
+  this->affect_lines = lines;
   return nearest;
 }
 
@@ -86,8 +95,8 @@ void Fish::drawCollisionDebug(sf::RenderWindow& window) {
 void Fish::drawTrimmedCircle(float deg_value) {
   int resolution = 10;
   sf::Vector2f init_pos = this->getPosition();
-  float view_deg = PI;
-  float cur_deg = PI;
+  float view_deg = 3 * PI / 2;
+  float cur_deg = PI - PI / 8;
   // float offset_deg = cur_deg + view_deg / 2 + view_deg - deg_value;  // For
   // 45 degree and view_ang = PI/4 float offset_deg = cur_deg + view_deg / 2 -
   // deg_value;  // For 90 degree and view_ang = PI/2
