@@ -11,7 +11,7 @@ int main() {
   const int window_size_x = 500;
   const int window_size_y = 500;
   const int max_framerate = 144;
-  const float speed = 100.F;
+  const float speed = 80.F;
   const float dt = 0.0069444445F;
 
   sf::RenderWindow window(sf::VideoMode(window_size_x, window_size_y),
@@ -23,10 +23,10 @@ int main() {
   std::uniform_real_distribution<float> dis(0.0f, 1.0f);
 
   // -- Creating Dummy Fish For Debug ---
-  Fish dummyfish(col_radius * 5, speed, radius, 0, dt, window_size_x / 2,
+  Fish dummyfish(col_radius * 5, speed, radius, M_PI / 2, dt, window_size_x / 2,
                  window_size_x / 2);
   dummyfish.setTextureInPlace("res/fish4.png");
-  
+
   //-- Creating Fishes --
   std::vector<Fish> clown_fish;
   clown_fish.reserve(num_of_fish);
@@ -39,26 +39,28 @@ int main() {
   }
   // --------------------
 
+  Fish::setup(clown_fish, window_size_x, window_size_y);
+  
+  // --- Main Loop ---
   while (window.isOpen()) {
     sf::Event event;
     while (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed) window.close();
     }
+    // --- Setup ---
 
     window.clear();
-    // --- Main Loop ---
-    for (int i = 0; i < num_of_fish; i++) {
-      clown_fish[i].updatePosition(window_size_x, window_size_y);
 
-      clown_fish[i].avoid(clown_fish);
-      // clown_fish[i].drawCollisionDebug(window);
-      // clown_fish[i].mimicDirection(clown_fish);
+    // --- Looping through all fishes ---
+    for (int i = 0; i < num_of_fish; i++) {
+      clown_fish[i].startEvent();
     }
+    dummyfish.startEvent();
+
     // --- Rendering ---
     for (auto& fish : clown_fish) window.draw(fish);
-    
+
     dummyfish.drawCollisionDebug(window);
-    dummyfish.avoid(clown_fish);
     window.draw(dummyfish);
     window.display();
   }

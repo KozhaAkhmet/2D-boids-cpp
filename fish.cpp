@@ -3,9 +3,11 @@
 #include "math.h"
 #define PI 3.14159265358979323846
 
-int Fish::count = 0;
+std::vector<Fish> Fish::fishes{};
+int Fish::window_size_x{};
+int Fish::window_size_y{};
 
-Fish::Fish() { count++; }
+Fish::Fish() {}
 
 Fish::Fish(float col_radius, float speed, float size, float dir = 0,
            float dt = 0.0069444445F, float pos_x = 0, float pos_y = 0) {
@@ -18,39 +20,43 @@ Fish::Fish(float col_radius, float speed, float size, float dir = 0,
   this->setRadius(size);
   this->setPosition(pos_x, pos_y);
   this->setDirection(dir);
-  count++;
 }
 
+void Fish::setup(const std::vector<Fish>& from, int window_size_x,
+                 int window_size_y) {
+  Fish::window_size_x = window_size_x;
+  Fish::window_size_y = window_size_y;
+  Fish::fishes = from;
+}
 
-void Fish::startEvent(const std::vector<Fish>& from){
-  // updatePosition();
-  // getCollisions();
+void Fish::startEvent() {
+  this->updatePosition();
+  getCollisions();
   // avoid();
   // mimicDirection();
   // centerOfDirections();
   // setDirection();
 }
 
-void Fish::updatePosition(int window_size_x, int window_size_y) {
+void Fish::updatePosition() {
   sf::Vector2f temp = this->getPosition();
-  if (temp.x > window_size_x)
+  if (temp.x > Fish::window_size_x)
     temp.x = 0;
   else if (temp.x < 0)
-    temp.x = window_size_x;
-  if (temp.y > window_size_y)
+    temp.x = Fish::window_size_x;
+  if (temp.y > Fish::window_size_x)
     temp.y = 0;
   else if (temp.y < 0)
-    temp.y = window_size_y;
+    temp.y = Fish::window_size_x;
 
   temp.x += speed * dt * cos(this->getDirection());
   temp.y += speed * dt * sin(this->getDirection());
   this->setPosition(temp);
 }
 
-void Fish::avoid(const std::vector<Fish>& from) {
-  std::vector<Fish> nearest = getCollisions(from);
+void Fish::avoid() {
   sf::Vector2f sum = {};
-  for (auto& n : nearest) {
+  for (auto& n : this->nearest_fishes) {
     sum += this->getPosition() - n.getPosition();
   }
   // TODO Does the conditions nessesary?
@@ -58,7 +64,7 @@ void Fish::avoid(const std::vector<Fish>& from) {
   //--------
   // float rad = atan2(sum.x, -sum.y);
   // double rel_angle = this->dir - rad;
-  
+
   // // std::cout << (rad - this->dir + PI / 2) * 180 / PI << "  "
   // //           << rel_angle * 180 / PI << std::endl;
   // setDirection(rel_angle);
@@ -80,20 +86,16 @@ void Fish::avoid(const std::vector<Fish>& from) {
 }
 
 void Fish::mimicDirection(const std::vector<Fish>& from) {
-  std::vector<Fish> nearest = getCollisions(from);
   float sum = {};
 
-  for (auto& n : nearest) {
+  for (auto& n : this->nearest_fishes) {
     sum += n.getDirection();
-    count++;
   }
   this->setDirection(sum);
 }
 // TODO FIsh path render debugger (trails)
 
-void Fish::centerOfDirections(){
-
-}
+void Fish::centerOfDirections() {}
 
 void Fish::drawCollisionDebug(sf::RenderWindow& window) {
   drawTrimmedCircle(this->dir);
@@ -138,14 +140,16 @@ float Fish::getDistance(const sf::Vector2f& b) {
 
 float Fish::getDirection() { return this->dir; }
 
-std::vector<Fish> Fish::getCollisions(const std::vector<Fish>& from) {
+void Fish::getCollisions() {
   std::vector<Fish> nearest;
-  sf::VertexArray lines(sf::Lines, from.size() * 2);
-  for (int i = 0; i < from.size(); i++) {
+  sf::VertexArray lines(sf::Lines, Fish::fishes.size() * 2);
+  for (int i = 0; i < Fish::fishes.size(); i++) {
+    Fish target = Fish::fishes[i];
     // if shorter from certain co_radius
-    if (this->getDistance(from[i].getPosition()) < col_radius) {
+    if (this->getDistance(target.getPosition()) < col_radius) {
       // Get the vector from this to target
-      sf::Vector2f sub_vec = this->getPosition() - from[i].getPosition();
+      sf::Vector2f sub_vec =
+          this->getPosition() - target.getPosition();
       // Get the angle of that vector
       float rad = atan2(sub_vec.x, -sub_vec.y);
 
@@ -153,23 +157,23 @@ std::vector<Fish> Fish::getCollisions(const std::vector<Fish>& from) {
                              ? ((this->dir + PI / 2) - rad) + 2 * PI
                              : ((this->dir + PI / 2) - rad);
 
-      rel_angle = rel_angle > 2*PI ? rel_angle - PI*2 : rel_angle ;
-      
-      std::cout << ((this->dir + PI / 2) - rad) * 180 / PI << "  "
-                << rel_angle * 180 / PI << " "
-                << (this->dir - (rad + PI / 2)) * 180 / PI << std::endl;
+      rel_angle = rel_angle > 2 * PI ? rel_angle - PI * 2 : rel_angle;
+
+      // std::cout << ((this->dir + PI / 2) - rad) * 180 / PI << "  "
+      //           << rel_angle * 180 / PI << " "
+      //           << (this->dir - (rad + PI / 2)) * 180 / PI << std::endl;
 
       if ((PI / 4 < rel_angle && rel_angle < 7 * PI / 4)) {
         lines[i * 2 + 1].position = this->getPosition();
         lines[i * 2 + 1].color = sf::Color::Black;
-        lines[i * 2].position = from[i].getPosition();
-        
-        nearest.push_back(from[i]);
+        lines[i * 2].position = target.getPosition();
+
+        nearest.push_back(target);
       }
     }
   }
   this->affect_lines = lines;
-  return nearest;
+  this->nearest_fishes = nearest;
 }
 
 void Fish::setTextureInPlace(std::string file_path) {
@@ -189,6 +193,5 @@ void Fish::setDirection(float rad) {
   this->setRotation(this->dir * 180 / PI);
   // std::cout << this->dir << std::endl;
 }
-
 
 Fish::~Fish() {}
