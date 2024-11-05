@@ -46,17 +46,20 @@ int main() {
     }
 
     window.clear();
+    // --- Main Loop ---
     for (int i = 0; i < num_of_fish; i++) {
       clown_fish[i].updatePosition(window_size_x, window_size_y);
 
       clown_fish[i].avoid(clown_fish);
       // clown_fish[i].drawCollisionDebug(window);
-      dummyfish.drawCollisionDebug(window);
-      dummyfish.avoid(clown_fish);
       // clown_fish[i].mimicDirection(clown_fish);
     }
-    window.draw(dummyfish);
+    // --- Rendering ---
     for (auto& fish : clown_fish) window.draw(fish);
+    
+    dummyfish.drawCollisionDebug(window);
+    dummyfish.avoid(clown_fish);
+    window.draw(dummyfish);
     window.display();
   }
   return 0;
