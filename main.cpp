@@ -39,6 +39,7 @@ int main() {
   }
   // --------------------
 
+  // --- Setup ---
   Fish::setup(clown_fish, window_size_x, window_size_y);
   
   // --- Main Loop ---
@@ -47,18 +48,17 @@ int main() {
     while (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed) window.close();
     }
-    // --- Setup ---
-
     window.clear();
 
     // --- Looping through all fishes ---
     for (int i = 0; i < num_of_fish; i++) {
-      clown_fish[i].startEvent();
+      Fish::fishes[i].startEvent();
+      Fish::fishes[i].drawCollisionDebug(window);
     }
     dummyfish.startEvent();
 
     // --- Rendering ---
-    for (auto& fish : clown_fish) window.draw(fish);
+    for (auto& fish : Fish::fishes) window.draw(fish);
 
     dummyfish.drawCollisionDebug(window);
     window.draw(dummyfish);

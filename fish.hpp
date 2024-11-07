@@ -12,13 +12,15 @@ class Fish : public sf::CircleShape {
   float col_radius;
   float speed;
   double dir;
-  float turn_speed = 0.01f;
+  float turn_speed = 0.04f;
 
   static int window_size_x;
   static int window_size_y;
-  static std::vector<Fish> fishes;
 
  public:
+  static std::vector<Fish> fishes;
+static int count;
+  std::string name;
   Fish();
   Fish(float col_radius, float speed, float size, float dir, float dt,
        float pos_x, float pos_y);
@@ -34,7 +36,7 @@ class Fish : public sf::CircleShape {
   float getDistance(const sf::CircleShape& a, const sf::CircleShape& b);
   float getDistance(const sf::Vector2f& b);
   float getDirection();
-  void getCollisions();
+  std::vector<Fish> getCollisions();
   void setTextureInPlace(std::string file_path);
   void setCollisionRadius(float col);
   void setSpeed(float speed);
