@@ -144,6 +144,7 @@ float Fish::getDistance(const sf::Vector2f& b) {
 float Fish::getDirection() { return this->dir; }
 
 std::vector<Fish> Fish::getCollisions() {
+  // TODO Cant make this method void due to performance issues. This should be updated later or with this way we have to call it every time not once.
   std::vector<Fish> nearest;
   sf::VertexArray lines(sf::Lines, Fish::fishes.size() * 2);
   for (int i = 0; i < Fish::fishes.size(); i++) {
