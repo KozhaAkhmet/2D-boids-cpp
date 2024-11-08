@@ -1,24 +1,18 @@
 #include "fish.hpp"
 
 #include "math.h"
-#define PI 3.14159265358979323846
-#define PI_M_2 3.14159265358979323846 * 2
-#define PI_S_2 3.14159265358979323846 / 2
+#include <filesystem>
+constexpr double PI = 3.14159265358979323846;
+constexpr double PI_M_2 = 3.14159265358979323846 * 2;
+constexpr double PI_S_2 = 3.14159265358979323846 / 2;
 
-std::vector<Fish> Fish::fishes{};
-int Fish::window_size_x{};
-int Fish::window_size_y{};
 int Fish::count = 0;
-
-Fish::Fish() { Fish::count++; }
-
 Fish::Fish(float col_radius, float speed, float size, float dir = 0,
            float dt = 0.0069444445F, float pos_x = 0, float pos_y = 0) {
   this->col_radius = col_radius;
   this->speed = speed;
   this->dt = dt;
   this->dir = dir;
-  this->size = size;
   this->setOrigin(size, size);
   this->setRadius(size);
   this->setPosition(pos_x, pos_y);
@@ -27,44 +21,20 @@ Fish::Fish(float col_radius, float speed, float size, float dir = 0,
   this->name = "fish_" + std::to_string(count);
 }
 
-void Fish::setup(const std::vector<Fish>& from, int window_size_x,
-                 int window_size_y) {
-  Fish::window_size_x = window_size_x;
-  Fish::window_size_y = window_size_y;
-  Fish::fishes = std::move(from);
-  // std::cout <<   << std::endl;
-}
-
-void Fish::startEvent() {
-  updatePosition();
-  // getCollisions();
-  avoid();
-  // mimicDirection();
-  // centerOfDirections();
-  // setDirection();
-}
-
 void Fish::updatePosition() {
   sf::Vector2f temp = this->getPosition();
-  if (temp.x > Fish::window_size_x)
-    temp.x = 0;
-  else if (temp.x < 0)
-    temp.x = Fish::window_size_x;
-  if (temp.y > Fish::window_size_y)
-    temp.y = 0;
-  else if (temp.y < 0)
-    temp.y = Fish::window_size_y;
 
   temp.x += speed * dt * cos(this->getDirection());
   temp.y += speed * dt * sin(this->getDirection());
+
   this->setPosition(temp);
 }
 
-void Fish::avoid() {
+void Fish::avoid(const std::vector<Fish> &fishes) {
   sf::Vector2f sum = {};
-  std::vector<Fish> nearest = getCollisions();
-  for (auto& n : nearest) {
-    sum += this->getPosition() - n.getPosition();
+  std::vector<const Fish *> nearest = getCollisions(fishes);
+  for (auto &n : nearest) {
+    sum += this->getPosition() - n->getPosition();
   }
   // TODO Does the conditions nessesary?
   // TODO simplyfy the atan2(sub.x,sub.y) to distribute throught method
@@ -87,11 +57,11 @@ void Fish::avoid() {
   }
 }
 
-void Fish::mimicDirection(const std::vector<Fish>& from) {
+void Fish::mimicDirection(const std::vector<Fish> &from) {
   float sum{};
   int count{};
 
-  for (auto& n : this->nearest_fishes) {
+  for (auto &n : this->nearest_fishes) {
     sum += n.getDirection();
   }
   this->setDirection(sum);
@@ -100,7 +70,7 @@ void Fish::mimicDirection(const std::vector<Fish>& from) {
 
 void Fish::centerOfDirections() {}
 
-void Fish::drawCollisionDebug(sf::RenderWindow& window) {
+void Fish::drawCollisionDebug(sf::RenderWindow &window) {
   drawTrimmedCircle(this->dir);
   window.draw(this->affect_lines);
   window.draw(this->collision_lines);
@@ -114,7 +84,7 @@ void Fish::drawTrimmedCircle(float deg_value) {
   // float offset_deg = cur_deg + view_deg / 2 + view_deg - deg_value;  // For
   // 45 degree and view_ang = PI/4 float offset_deg = cur_deg + view_deg / 2 -
   // deg_value;  // For 90 degree and view_ang = PI/2
-  float offset_deg = cur_deg - deg_value;  // For 180 degree and view_ang = PI
+  float offset_deg = cur_deg - deg_value; // For 180 degree and view_ang = PI
 
   sf::VertexArray lines(sf::LineStrip, resolution + 3);
   lines[0].position = init_pos;
@@ -131,31 +101,31 @@ void Fish::drawTrimmedCircle(float deg_value) {
   this->collision_lines = lines;
 }
 
-float Fish::getDistance(const sf::CircleShape& a, const sf::CircleShape& b) {
-  sf::Vector2f sub = a.getPosition() - b.getPosition();
-  return sub.x * sub.x + sub.y * sub.y;
+float Simulation::getDistance(const sf::Vector2f &a, const sf::Vector2f &b) {
+  sf::Vector2f sub = a - b;
+  return sqrt(sub.x * sub.x + sub.y * sub.y);
 }
 
-float Fish::getDistance(const sf::Vector2f& b) {
-  sf::Vector2f sub = this->getPosition() - b;
-  return sqrt(sub.x * sub.x + sub.y * sub.y);
+float Fish::getDistance(const sf::Vector2f &b) {
+  return Simulation::getDistance(this->getPosition(), b);
 }
 
 float Fish::getDirection() { return this->dir; }
 
-std::vector<Fish> Fish::getCollisions() {
-  // TODO Cant make this method void due to performance issues. This should be updated later or with this way we have to call it every time not once.
-  std::vector<Fish> nearest;
-  sf::VertexArray lines(sf::Lines, Fish::fishes.size() * 2);
-  for (int i = 0; i < Fish::fishes.size(); i++) {
-    Fish target = Fish::fishes[i];
+std::vector<const Fish *> Fish::getCollisions(const std::vector<Fish> &fishes) {
+  // TODO Cant make this method void due to performance issues. This should be
+  // updated later or with this way we have to call it every time not once.
+  std::vector<const Fish *> nearest = {};
+  sf::VertexArray lines(sf::Lines, fishes.size() * 2);
+  for (int i = 0; i < fishes.size(); i++) {
+    const Fish *target = &fishes[i];
     // if shorter from certain co_radius and is not this fish.
-    if ((this != &target) &&
-this->getDistance(target.getPosition()) < col_radius) {
+    if ((this != target) &&
+        this->getDistance(target->getPosition()) < col_radius) {
       // Get the vector from this to target
-      sf::Vector2f sub_vec = this->getPosition() - target.getPosition();
+      sf::Vector2f sub_vec = this->getPosition() - target->getPosition();
       // Get the angle of that vector
-      
+
       double rad = (this->dir + PI_S_2) - atan2(sub_vec.x, -sub_vec.y);
 
       double rel_angle = rad < 0 ? rad + PI_M_2 : rad;
@@ -168,22 +138,15 @@ this->getDistance(target.getPosition()) < col_radius) {
       if ((PI / 4 < rel_angle && rel_angle < 7 * PI / 4)) {
         lines[i * 2 + 1].position = this->getPosition();
         lines[i * 2 + 1].color = sf::Color::Black;
-        lines[i * 2].position = target.getPosition();
+        lines[i * 2].position = target->getPosition();
 
         nearest.emplace_back(target);
       }
     }
   }
-// std::cout << this->name << " " << nearest.size() << std::endl;
+  // std::cout << this->name << " " << nearest.size() << std::endl;
   this->affect_lines = lines;
   return nearest;
-}
-
-void Fish::setTextureInPlace(std::string file_path) {
-  this->texture.loadFromFile(file_path);
-  this->texture.setSmooth(true);
-  this->texture.generateMipmap();
-  this->setTexture(&texture);
 }
 
 void Fish::setCollisionRadius(float col) { this->col_radius = col; }
@@ -197,4 +160,54 @@ void Fish::setDirection(float rad) {
   // std::cout << this->dir << std::endl;
 }
 
-Fish::~Fish() {}
+namespace Simulation {
+Instance::Instance(int _window_size_x, int _window_size_y)
+    : window_size_x(_window_size_x), window_size_y(_window_size_y) {
+  for (const auto &file : std::filesystem::directory_iterator("res/")) {
+    sf::Texture t;
+    t.loadFromFile(file.path());
+    t.setSmooth(true);
+    t.generateMipmap();
+    imgmap.push_back(t);
+  }
+}
+
+void Instance::run() {
+  for (Fish &fish : fishes) {
+    fish.updatePosition();
+    fish.setPosition(checkBoundries(fish.getPosition()));
+
+    fish.getCollisions(fishes);
+    fish.avoid(fishes);
+    // fish.mimicDirection(fishes);
+    //  centerOfDirections();
+    //  setDirection();
+  }
+}
+
+sf::Vector2f Instance::checkBoundries(sf::Vector2f temp) {
+  if (temp.x > window_size_x)
+    temp.x = 0;
+  else if (temp.x < 0)
+    temp.x = window_size_x;
+  if (temp.y > window_size_y)
+    temp.y = 0;
+  else if (temp.y < 0)
+    temp.y = window_size_y;
+  return temp;
+}
+
+void Instance::display() {}
+
+void Instance::generate(std::mt19937 &gen,
+                        std::uniform_real_distribution<float> dis,
+                        int number_of_fish, int col_radius, float speed,
+                        float radius, float dt) {
+  for (int i = 0; i < number_of_fish; i++) {
+    fishes.emplace_back(Fish(col_radius * 5, speed, radius, (dis(gen) * M_2_PI),
+                             dt, (dis(gen) * window_size_x),
+                             (dis(gen) * window_size_y)));
+    fishes[i].setTexture(&imgmap[dis(gen) * imgmap.size()]);
+  }
+}
+} // namespace Simulation
