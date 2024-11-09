@@ -87,14 +87,14 @@ void Fish::avoid() {
   }
 }
 
-void Fish::mimicDirection(const std::vector<Fish>& from) {
+void Fish::mimicDirection() {
   float sum{};
-  int count{};
-
-  for (auto& n : this->nearest_fishes) {
-    sum += n.getDirection();
+  std::vector<Fish> nearest = this->getCollisions();
+  for (auto& n : nearest) {
+    sum = n.getDirection() - this->dir;
   }
-  this->setDirection(sum);
+  this->mimic_ang_rad = sum;
+  // std::cout << this->mimic_ang_rad << std::endl;
 }
 // TODO FIsh path render debugger (trails)
 
