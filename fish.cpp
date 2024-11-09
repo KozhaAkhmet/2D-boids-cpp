@@ -41,7 +41,26 @@ void Fish::startEvent() {
   avoid();
   // mimicDirection();
   // centerOfDirections();
+
   // setDirection();
+float rad;
+  this->avoid_vec.y = -this->avoid_vec.y;
+  // double distance_divider = 10 * (log10(this->min_distance) + this->col_radius);
+  double distance_divider = 10;
+
+  if (this->avoid_vec.y < 0) {
+    rad = -(atan(this->avoid_vec.x / this->avoid_vec.y) - PI / 2) /
+              distance_divider +
+          this->mimic_ang_rad * distance_divider;
+    // rad = this->mimic_ang_rad * distance_divider;
+    setDirection(rad);
+  } else if (this->avoid_vec.y > 0) {
+    rad = -(atan(this->avoid_vec.x / this->avoid_vec.y) + PI / 2) /
+              distance_divider +
+          this->mimic_ang_rad * distance_divider;
+    // rad = this->mimic_ang_rad * distance_divider;
+    setDirection(rad);
+  }
 }
 
 void Fish::updatePosition() {
@@ -62,10 +81,13 @@ void Fish::updatePosition() {
 
 void Fish::avoid() {
   sf::Vector2f sum = {};
+int count{};
   std::vector<Fish> nearest = getCollisions();
   for (auto& n : nearest) {
     sum += this->getPosition() - n.getPosition();
+count++;
   }
+this->avoid_vec = sf::Vector2f(sum.x / count, sum.y / count);
   // TODO Does the conditions nessesary?
   // TODO simplyfy the atan2(sub.x,sub.y) to distribute throught method
   //--------
@@ -76,15 +98,16 @@ void Fish::avoid() {
   // //           << rel_angle * 180 / PI << std::endl;
   // setDirection(rad);
   //---------
-  float rad;
-  sum.y = -sum.y;
-  if (sum.y < 0) {
-    rad = -(atan(sum.x / sum.y) - PI / 2);
-    setDirection(rad);
-  } else if (sum.y > 0) {
-    rad = -(atan(sum.x / sum.y) + PI / 2);
-    setDirection(rad);
-  }
+
+  //   float rad;
+//   sum.y = -sum.y;
+//   if (sum.y < 0) {
+//       rad = -(atan(sum.x / sum.y) - PI / 2);
+//       setDirection(rad);
+//   } else if (sum.y > 0) {
+//       rad = -(atan(sum.x / sum.y) + PI / 2);
+//       setDirection(rad);
+//   }
 }
 
 void Fish::mimicDirection() {
@@ -144,14 +167,17 @@ float Fish::getDistance(const sf::Vector2f& b) {
 float Fish::getDirection() { return this->dir; }
 
 std::vector<Fish> Fish::getCollisions() {
-  // TODO Cant make this method void due to performance issues. This should be updated later or with this way we have to call it every time not once.
+  // TODO Cant make this method void due to performance issues. This should be
+  // updated later or with this way we have to call it every time not once.
   std::vector<Fish> nearest;
+this->min_distance = window_size_x * window_size_y;
   sf::VertexArray lines(sf::Lines, Fish::fishes.size() * 2);
   for (int i = 0; i < Fish::fishes.size(); i++) {
-    Fish target = Fish::fishes[i];
+    Fish &target = Fish::fishes[i];
     // if shorter from certain co_radius and is not this fish.
     if ((this != &target) &&
-this->getDistance(target.getPosition()) < col_radius) {
+this->getDistance(target.getPosition()) < col_radius &&
+        this->getDistance(target.getPosition()) != 0) {
       // Get the vector from this to target
       sf::Vector2f sub_vec = this->getPosition() - target.getPosition();
       // Get the angle of that vector
@@ -169,6 +195,11 @@ this->getDistance(target.getPosition()) < col_radius) {
         lines[i * 2 + 1].position = this->getPosition();
         lines[i * 2 + 1].color = sf::Color::Black;
         lines[i * 2].position = target.getPosition();
+
+float distance_to_target = getDistance(target.getPosition());
+        this->min_distance = distance_to_target < this->min_distance
+                                 ? distance_to_target
+                                 : this->min_distance;
 
         nearest.emplace_back(target);
       }
@@ -191,8 +222,10 @@ void Fish::setCollisionRadius(float col) { this->col_radius = col; }
 void Fish::setSpeed(float speed) { this->speed = speed; }
 
 void Fish::setDirection(float rad) {
-  float sub = dir - rad;
-  this->dir += abs(rad) / rad * this->turn_speed;
+  // double distance_divider = this->min_distance / 5;
+  this->dir += (abs(rad) / rad * this->turn_speed);
+  // std::cout << this->name << " " << this->dir << " " << distance_divider
+  //           << std::endl;
   this->setRotation(this->dir * 180 / PI);
   // std::cout << this->dir << std::endl;
 }
