@@ -37,12 +37,12 @@ int main() {
              (dis(gen) * window_size_x), (dis(gen) * window_size_y)));
     clown_fish[i].setTextureInPlace("res/fish2.png");
   }
-// clown_fish.emplace_back(dummyfish);
+  // clown_fish.emplace_back(dummyfish);
   // --------------------
 
   // --- Setup ---
   Fish::setup(clown_fish, window_size_x, window_size_y);
-  
+
   // --- Main Loop ---
   while (window.isOpen()) {
     sf::Event event;
@@ -54,15 +54,15 @@ int main() {
     // --- Looping through all fishes ---
     for (int i = 0; i < num_of_fish; i++) {
       Fish::fishes[i].startEvent();
-// Fish::fishes[i].drawCollisionDebug(window);
+      // Fish::fishes[i].drawCollisionDebug(window);
     }
-// dummyfish.startEvent();
+    // dummyfish.startEvent();
 
     // --- Rendering ---
     for (auto& fish : Fish::fishes) window.draw(fish);
 
-// dummyfish.drawCollisionDebug(window);
-// window.draw(dummyfish);
+    // dummyfish.drawCollisionDebug(window);
+    // window.draw(dummyfish);
     window.display();
   }
   return 0;

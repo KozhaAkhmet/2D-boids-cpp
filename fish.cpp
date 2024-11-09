@@ -39,11 +39,11 @@ void Fish::startEvent() {
   updatePosition();
   // getCollisions();
   avoid();
-  // mimicDirection();
+  mimicDirection();
   // centerOfDirections();
 
   // setDirection();
-float rad;
+  float rad;
   this->avoid_vec.y = -this->avoid_vec.y;
   // double distance_divider = 10 * (log10(this->min_distance) + this->col_radius);
   double distance_divider = 10;
@@ -81,13 +81,13 @@ void Fish::updatePosition() {
 
 void Fish::avoid() {
   sf::Vector2f sum = {};
-int count{};
+  int count{};
   std::vector<Fish> nearest = getCollisions();
   for (auto& n : nearest) {
     sum += this->getPosition() - n.getPosition();
-count++;
+    count++;
   }
-this->avoid_vec = sf::Vector2f(sum.x / count, sum.y / count);
+  this->avoid_vec = sf::Vector2f(sum.x / count, sum.y / count);
   // TODO Does the conditions nessesary?
   // TODO simplyfy the atan2(sub.x,sub.y) to distribute throught method
   //--------
@@ -99,15 +99,15 @@ this->avoid_vec = sf::Vector2f(sum.x / count, sum.y / count);
   // setDirection(rad);
   //---------
 
-  //   float rad;
-//   sum.y = -sum.y;
-//   if (sum.y < 0) {
-//       rad = -(atan(sum.x / sum.y) - PI / 2);
-//       setDirection(rad);
-//   } else if (sum.y > 0) {
-//       rad = -(atan(sum.x / sum.y) + PI / 2);
-//       setDirection(rad);
-//   }
+  // float rad;
+  // sum.y = -sum.y;
+  // if (sum.y < 0) {
+  //   rad = -(atan(sum.x / sum.y) - PI / 2);
+  //   setDirection(rad);
+  // } else if (sum.y > 0) {
+  //   rad = -(atan(sum.x / sum.y) + PI / 2);
+  //   setDirection(rad);
+  // }
 }
 
 void Fish::mimicDirection() {
@@ -170,18 +170,18 @@ std::vector<Fish> Fish::getCollisions() {
   // TODO Cant make this method void due to performance issues. This should be
   // updated later or with this way we have to call it every time not once.
   std::vector<Fish> nearest;
-this->min_distance = window_size_x * window_size_y;
+  this->min_distance = window_size_x * window_size_y;
   sf::VertexArray lines(sf::Lines, Fish::fishes.size() * 2);
   for (int i = 0; i < Fish::fishes.size(); i++) {
     Fish &target = Fish::fishes[i];
     // if shorter from certain co_radius and is not this fish.
     if ((this != &target) &&
-this->getDistance(target.getPosition()) < col_radius &&
+        this->getDistance(target.getPosition()) < col_radius &&
         this->getDistance(target.getPosition()) != 0) {
       // Get the vector from this to target
       sf::Vector2f sub_vec = this->getPosition() - target.getPosition();
       // Get the angle of that vector
-      
+
       double rad = (this->dir + PI_S_2) - atan2(sub_vec.x, -sub_vec.y);
 
       double rel_angle = rad < 0 ? rad + PI_M_2 : rad;
@@ -196,7 +196,7 @@ this->getDistance(target.getPosition()) < col_radius &&
         lines[i * 2 + 1].color = sf::Color::Black;
         lines[i * 2].position = target.getPosition();
 
-float distance_to_target = getDistance(target.getPosition());
+        float distance_to_target = getDistance(target.getPosition());
         this->min_distance = distance_to_target < this->min_distance
                                  ? distance_to_target
                                  : this->min_distance;
@@ -205,7 +205,7 @@ float distance_to_target = getDistance(target.getPosition());
       }
     }
   }
-// std::cout << this->name << " " << nearest.size() << std::endl;
+  // std::cout << this->name << " " << nearest.size() << std::endl;
   this->affect_lines = lines;
   return nearest;
 }
@@ -227,7 +227,20 @@ void Fish::setDirection(float rad) {
   // std::cout << this->name << " " << this->dir << " " << distance_divider
   //           << std::endl;
   this->setRotation(this->dir * 180 / PI);
-  // std::cout << this->dir << std::endl;
 }
+
+bool operator==(const Fish& lhs, const Fish& rhs) {
+  return lhs == rhs ? true : false;
+}
+
+bool operator!=(const Fish& lhs, const Fish& rhs) {
+  return lhs == rhs ? false : true;
+}
+
+sf::Vector2f polarToCortesian(double rad) {
+  return sf::Vector2f(cos(rad), sin(rad));
+}
+
+double cortesianToPolar(sf::Vector2f vec) { return atan(vec.x / vec.y); }
 
 Fish::~Fish() {}

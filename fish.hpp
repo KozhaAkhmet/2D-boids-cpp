@@ -25,13 +25,13 @@ class Fish : public sf::CircleShape {
 
  public:
   static std::vector<Fish> fishes;
-static int count;
+  static int count;
   std::string name;
   Fish();
   Fish(float col_radius, float speed, float size, float dir, float dt,
        float pos_x, float pos_y);
   static void setup(const std::vector<Fish>& from, int window_size_x,
-             int window_size_y);
+                    int window_size_y);
   void startEvent();
   void updatePosition();
   void avoid();
