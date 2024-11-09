@@ -2,6 +2,26 @@
 #include <random>
 
 class Fish : public sf::CircleShape {
+ private:
+  float size = 10;
+  float dt;
+  sf::Vector2f pos;
+  sf::Texture texture;
+  std::vector<Fish> nearest_fishes;
+
+  float min_distance = 100000;
+  int col_size;
+  sf::Vector2f avoid_vec;
+  double mimic_ang_rad;
+  sf::Vector2f cod_vec;
+
+  float col_radius;
+  float speed;
+  double dir;
+  float turn_speed = 0.01f;
+
+  static int window_size_x;
+  static int window_size_y;
 
 public:
   static int count;
