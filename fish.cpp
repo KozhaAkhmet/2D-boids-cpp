@@ -2,11 +2,13 @@
 
 #include <filesystem>
 
+#include "iostream"
 #include "math.h"
+
 constexpr double PI = 3.14159265358979323846;
 constexpr double PI_M_2 = 3.14159265358979323846 * 2;
 constexpr double PI_S_2 = 3.14159265358979323846 / 2;
-
+// TODO Rearrenge the fish methods according to fish.hpp
 int Fish::count = 0;
 Fish::Fish(float col_radius, float speed, float size, float dir = 0,
            float dt = 0.0069444445F, float pos_x = 0, float pos_y = 0) {
@@ -37,27 +39,7 @@ void Fish::avoid(const std::vector<Fish>& fishes) {
   for (auto& n : nearest) {
     sum += this->getPosition() - n->getPosition();
   }
-  this->avoid_vec = sf::Vector2f(sum.x / count, sum.y / count);
-  // TODO Does the conditions nessesary?
-  // TODO simplyfy the atan2(sub.x,sub.y) to distribute throught method
-  //--------
-  // float rad = atan2(sum.x, -sum.y);
-  // double rel_angle = this->dir + rad;
-
-  // // std::cout << (rad - this->dir + PI / 2) * 180 / PI << "  "
-  // //           << rel_angle * 180 / PI << std::endl;
-  // setDirection(rad);
-  //---------
-
-  // float rad;
-  // sum.y = -sum.y;
-  // if (sum.y < 0) {
-  //   rad = -(atan(sum.x / sum.y) - PI / 2);
-  //   setDirection(rad);
-  // } else if (sum.y > 0) {
-  //   rad = -(atan(sum.x / sum.y) + PI / 2);
-  //   setDirection(rad);
-  // }
+  this->avoid_vec = sf::Vector2f(sum.x, sum.y);
 }
 
 void Fish::mimicDirection(const std::vector<Fish>& from) {
@@ -65,7 +47,7 @@ void Fish::mimicDirection(const std::vector<Fish>& from) {
   int count{};
 
   for (auto& n : this->nearest_fishes) {
-    sum += n.getDirection();
+    sum += this->dir - n.getDirection();
   }
   this->mimic_ang_rad = sum;
   // std::cout << this->mimic_ang_rad << std::endl;
@@ -105,15 +87,6 @@ void Fish::drawTrimmedCircle(float deg_value) {
   this->collision_lines = lines;
 }
 
-float Simulation::getDistance(const sf::Vector2f& a, const sf::Vector2f& b) {
-  sf::Vector2f sub = a - b;
-  return sqrt(sub.x * sub.x + sub.y * sub.y);
-}
-
-float Fish::getDistance(const sf::Vector2f& b) {
-  return Simulation::getDistance(this->getPosition(), b);
-}
-
 float Fish::getDirection() { return this->dir; }
 
 std::vector<const Fish*> Fish::getCollisions(const std::vector<Fish>& fishes) {
@@ -125,7 +98,8 @@ std::vector<const Fish*> Fish::getCollisions(const std::vector<Fish>& fishes) {
     const Fish* target = &fishes[i];
     // if shorter from certain co_radius and is not this fish.
     if ((this != target) &&
-        this->getDistance(target->getPosition()) < col_radius) {
+        Simulation::getDistance(this->getPosition(), target->getPosition()) <
+            col_radius) {
       // Get the vector from this to target
       sf::Vector2f sub_vec = this->getPosition() - target->getPosition();
       // Get the angle of that vector
@@ -144,10 +118,10 @@ std::vector<const Fish*> Fish::getCollisions(const std::vector<Fish>& fishes) {
         lines[i * 2 + 1].color = sf::Color::Black;
         lines[i * 2].position = target->getPosition();
 
-        // float distance_to_target = getDistance(target.getPosition());
-        // this->min_distance = distance_to_target < this->min_distance
-        //                          ? distance_to_target
-        //                          : this->min_distance;
+        float distance_to_target = Simulation::getDistance(this->getPosition(),target->getPosition());
+        this->min_distance = distance_to_target < this->min_distance
+                                 ? distance_to_target
+                                 : this->min_distance;
 
         nearest.emplace_back(target);
       }
@@ -163,26 +137,44 @@ void Fish::setCollisionRadius(float col) { this->col_radius = col; }
 void Fish::setSpeed(float speed) { this->speed = speed; }
 
 void Fish::setDirection(float rad) {
-  // double distance_divider = this->min_distance / 5;
   this->dir += (abs(rad) / rad * this->turn_speed);
   // std::cout << this->name << " " << this->dir << " " << distance_divider
   //           << std::endl;
   this->setRotation(this->dir * 180 / PI);
 }
 
-bool operator==(const Fish& lhs, const Fish& rhs) {
-  return lhs == rhs ? true : false;
-}
+void Fish::applyModifiedDirection() {
+  // TODO Does the conditions nessesary?
+  // TODO simplyfy the atan2(sub.x,sub.y) to distribute throught method
+  float rad;
+  this->avoid_vec.y = -this->avoid_vec.y;
+  // double distance_divider = 10 * (log10(this->min_distance) +
+  // this->col_radius);
+  double distance_divider = this->min_distance / 10;
 
-bool operator!=(const Fish& lhs, const Fish& rhs) {
-  return lhs == rhs ? false : true;
-}
+  if (this->avoid_vec.y < 0) {
+    // rad = -(atan(this->avoid_vec.x / this->avoid_vec.y) - PI / 2) /
+    //           distance_divider +
+    //       this->mimic_ang_rad * distance_divider;
+    // (rad = this->mimic_ang_rad - PI / 2) * distance_divider;
+    rad = -(atan(this->avoid_vec.x / this->avoid_vec.y) - PI / 2);
 
-sf::Vector2f polarToCortesian(double rad) {
-  return sf::Vector2f(cos(rad), sin(rad));
-}
+    this->dir += (abs(rad) / rad * this->turn_speed) / distance_divider;
 
-double cortesianToPolar(sf::Vector2f vec) { return atan(vec.x / vec.y); }
+    this->setRotation(this->dir * 180 / PI);
+  } else if (this->avoid_vec.y > 0) {
+    // rad = -(atan(this->avoid_vec.x / this->avoid_vec.y) + PI / 2) /
+    //           distance_divider +
+    //       this->mimic_ang_rad * distance_divider;
+    // (rad = this->mimic_ang_rad + PI / 2) * distance_divider;
+    rad = -(atan(this->avoid_vec.x / this->avoid_vec.y) + PI / 2);
+
+    this->dir += (abs(rad) / rad * this->turn_speed) / distance_divider;
+
+    this->setRotation(this->dir * 180 / PI);
+  }
+  std::cout << distance_divider << std::endl;
+}
 
 namespace Simulation {
 Instance::Instance(int _window_size_x, int _window_size_y)
@@ -199,35 +191,43 @@ Instance::Instance(int _window_size_x, int _window_size_y)
 void Instance::run() {
   for (Fish& fish : fishes) {
     fish.updatePosition();
-    fish.setPosition(checkBoundries(fish.getPosition()));
+    checkBoundries(fish);
+    // fish.setPosition(checkBoundries(fish.getPosition()));
 
     fish.getCollisions(fishes);
     fish.avoid(fishes);
-    // fish.mimicDirection(fishes);
+    fish.mimicDirection(fishes);
     //  centerOfDirections();
-    //  setDirection();
-    //   float rad;
-    // this->avoid_vec.y = -this->avoid_vec.y;
-    // // double distance_divider = 10 * (log10(this->min_distance) +
-    // this->col_radius); double distance_divider = 10;
-
-    // if (this->avoid_vec.y < 0) {
-    //   rad = -(atan(this->avoid_vec.x / this->avoid_vec.y) - PI / 2) /
-    //             distance_divider +
-    //         this->mimic_ang_rad * distance_divider;
-    //   // rad = this->mimic_ang_rad * distance_divider;
-    //   setDirection(rad);
-    // } else if (this->avoid_vec.y > 0) {
-    //   rad = -(atan(this->avoid_vec.x / this->avoid_vec.y) + PI / 2) /
-    //             distance_divider +
-    //         this->mimic_ang_rad * distance_divider;
-    //   // rad = this->mimic_ang_rad * distance_divider;
-    //   setDirection(rad);
-    // }
+    fish.applyModifiedDirection();
   }
 }
 
-sf::Vector2f Instance::checkBoundries(sf::Vector2f temp) {
+void Instance::display(sf::RenderWindow& _window) {
+  for (auto& fish : fishes) {
+    _window.draw(fish);
+  }
+}
+
+// Generates the fiishes, also randomizes fishes position, direction and
+// texture.
+void Instance::generate(std::mt19937& gen,
+                        std::uniform_real_distribution<float> dis,
+                        int number_of_fish, int col_radius, float speed,
+                        float radius, float dt) {
+  for (int i = 0; i < number_of_fish; i++) {
+    fishes.emplace_back(Fish(col_radius * 5, speed, radius, (dis(gen) * PI_M_2),
+                             dt, (dis(gen) * window_size_x),
+                             (dis(gen) * window_size_y)));
+    // Choose randomly fishes from res file
+    // fishes[i].setTexture(&imgmap[dis(gen) * imgmap.size()]);
+    fishes[i].setTexture(&imgmap[3]);
+  }
+}
+
+// Method checks the boundaries of fish. If its out of bounds then modifies its
+// position.
+void Instance::checkBoundries(Fish& fish) {
+  sf::Vector2f temp = fish.getPosition();
   if (temp.x > window_size_x)
     temp.x = 0;
   else if (temp.x < 0)
@@ -236,20 +236,26 @@ sf::Vector2f Instance::checkBoundries(sf::Vector2f temp) {
     temp.y = 0;
   else if (temp.y < 0)
     temp.y = window_size_y;
-  return temp;
+  fish.setPosition(temp);
 }
 
-void Instance::display() {}
-
-void Instance::generate(std::mt19937& gen,
-                        std::uniform_real_distribution<float> dis,
-                        int number_of_fish, int col_radius, float speed,
-                        float radius, float dt) {
-  for (int i = 0; i < number_of_fish; i++) {
-    fishes.emplace_back(Fish(col_radius * 5, speed, radius, (dis(gen) * M_2_PI),
-                             dt, (dis(gen) * window_size_x),
-                             (dis(gen) * window_size_y)));
-    fishes[i].setTexture(&imgmap[dis(gen) * imgmap.size()]);
-  }
+float getDistance(const sf::Vector2f& a, const sf::Vector2f& b) {
+  sf::Vector2f sub = a - b;
+  return sqrt(sub.x * sub.x + sub.y * sub.y);
 }
+
+sf::Vector2f polarToCortesian(double rad) {
+  return sf::Vector2f(cos(rad), sin(rad));
+}
+
+double cortesianToPolar(sf::Vector2f vec) { return atan(vec.x / vec.y); }
+
+bool operator==(const Fish& lhs, const Fish& rhs) {
+  return lhs == rhs ? true : false;
+}
+
+bool operator!=(const Fish& lhs, const Fish& rhs) {
+  return lhs == rhs ? false : true;
+}
+
 }  // namespace Simulation
