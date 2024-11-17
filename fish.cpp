@@ -245,7 +245,7 @@ float getDistance(const sf::Vector2f& a, const sf::Vector2f& b) {
 }
 
 sf::Vector2f polarToCortesian(double rad) {
-  return sf::Vector2f(cos(rad), sin(rad));
+  return sf::Vector2f(cos(rad) * 50, sin(rad) * 50);
 }
 
 double cortesianToPolar(sf::Vector2f vec) { return atan(vec.x / vec.y); }
