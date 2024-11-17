@@ -23,6 +23,7 @@ class Fish : public sf::CircleShape {
 
   sf::VertexArray collision_lines;
   sf::VertexArray affect_lines;
+  sf::VertexArray dir_lines;
 
   ~Fish() {}
 

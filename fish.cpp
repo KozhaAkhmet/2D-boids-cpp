@@ -60,6 +60,7 @@ void Fish::drawCollisionDebug(sf::RenderWindow& window) {
   drawTrimmedCircle(this->dir);
   window.draw(this->affect_lines);
   window.draw(this->collision_lines);
+window.draw(this->dir_lines);
 }
 
 void Fish::drawTrimmedCircle(float deg_value) {
@@ -118,7 +119,8 @@ std::vector<const Fish*> Fish::getCollisions(const std::vector<Fish>& fishes) {
         lines[i * 2 + 1].color = sf::Color::Black;
         lines[i * 2].position = target->getPosition();
 
-        float distance_to_target = Simulation::getDistance(this->getPosition(),target->getPosition());
+        float distance_to_target =
+            Simulation::getDistance(this->getPosition(), target->getPosition());
         this->min_distance = distance_to_target < this->min_distance
                                  ? distance_to_target
                                  : this->min_distance;
@@ -170,10 +172,27 @@ void Fish::applyModifiedDirection() {
     rad = -(atan(this->avoid_vec.x / this->avoid_vec.y) + PI / 2);
 
     this->dir += (abs(rad) / rad * this->turn_speed) / distance_divider;
+// }
+  sf::VertexArray lines(sf::Lines, 2);
+  sf::Vector2f sum_vec = this->avoid_vec;
+  if (sum_vec.x != 0 && sum_vec.y != 0) {
+    rad = -(atan(this->avoid_vec.x / this->avoid_vec.y));
+    double rel_angle;
+    if (sum_vec.y > 0) rel_angle = rad + PI_S_2;
+    if (sum_vec.y < 0) rel_angle = rad - PI_S_2;
 
-    this->setRotation(this->dir * 180 / PI);
+    this->dir -=
+        (abs(rel_angle) / rel_angle * this->turn_speed) / distance_divider;
+
+    lines[0].position = this->getPosition();
+    lines[1].position =
+        Simulation::polarToCortesian(rel_angle) + this->getPosition();
+    lines[1].color = sf::Color::Red;
   }
-  std::cout << distance_divider << std::endl;
+  this->dir_lines = lines;
+  // std::cout << this->name << " " << this->dir << " " << distance_divider
+  //           << std::endl;
+  this->setRotation(this->dir * 180 / PI);
 }
 
 namespace Simulation {
