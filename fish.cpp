@@ -149,49 +149,35 @@ void Fish::applyModifiedDirection() {
   // TODO Does the conditions nessesary?
   // TODO simplyfy the atan2(sub.x,sub.y) to distribute throught method
   float rad;
-  this->avoid_vec.y = -this->avoid_vec.y;
   // double distance_divider = 10 * (log10(this->min_distance) +
   // this->col_radius);
   double distance_divider = this->min_distance / 10;
+  // double distance_divider = 1
 
-  if (this->avoid_vec.y < 0) {
-    // rad = -(atan(this->avoid_vec.x / this->avoid_vec.y) - PI / 2) /
-    //           distance_divider +
-    //       this->mimic_ang_rad * distance_divider;
-    // (rad = this->mimic_ang_rad - PI / 2) * distance_divider;
-    rad = -(atan(this->avoid_vec.x / this->avoid_vec.y) - PI / 2);
-
-    this->dir += (abs(rad) / rad * this->turn_speed) / distance_divider;
-
-    this->setRotation(this->dir * 180 / PI);
-  } else if (this->avoid_vec.y > 0) {
-    // rad = -(atan(this->avoid_vec.x / this->avoid_vec.y) + PI / 2) /
-    //           distance_divider +
-    //       this->mimic_ang_rad * distance_divider;
-    // (rad = this->mimic_ang_rad + PI / 2) * distance_divider;
-    rad = -(atan(this->avoid_vec.x / this->avoid_vec.y) + PI / 2);
-
-    this->dir += (abs(rad) / rad * this->turn_speed) / distance_divider;
-// }
   sf::VertexArray lines(sf::Lines, 2);
   sf::Vector2f sum_vec = this->avoid_vec;
   if (sum_vec.x != 0 && sum_vec.y != 0) {
-    rad = -(atan(this->avoid_vec.x / this->avoid_vec.y));
-    double rel_angle;
-    if (sum_vec.y > 0) rel_angle = rad + PI_S_2;
-    if (sum_vec.y < 0) rel_angle = rad - PI_S_2;
+    double evade_ang, rel_ang, positive_rad, positive_rel_ang;
+    rad = -(atan2(sum_vec.x, sum_vec.y)) + this->mimic_ang_rad * distance_divider;
+    positive_rad = rad < 0 ? rad + PI_M_2 : rad;
 
-    this->dir -=
-        (abs(rel_angle) / rel_angle * this->turn_speed) / distance_divider;
+    rel_ang = positive_rad - this->dir + PI_S_2;
+    positive_rel_ang = rel_ang < 0 ? rel_ang + PI_M_2 : rel_ang;
+
+    evade_ang = rad + PI_S_2;
+    if (positive_rel_ang < PI) this->dir += this->turn_speed;
+
+    if (positive_rel_ang > PI) this->dir -= this->turn_speed;
 
     lines[0].position = this->getPosition();
     lines[1].position =
-        Simulation::polarToCortesian(rel_angle) + this->getPosition();
+        Simulation::polarToCortesian(evade_ang) + this->getPosition();
     lines[1].color = sf::Color::Red;
   }
+if (this->dir < 0) this->dir += PI_M_2;
+  if (PI_M_2 < this->dir) this->dir -= PI_M_2;
+  std::cout << mimic_ang_rad << std::endl;
   this->dir_lines = lines;
-  // std::cout << this->name << " " << this->dir << " " << distance_divider
-  //           << std::endl;
   this->setRotation(this->dir * 180 / PI);
 }
 
