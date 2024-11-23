@@ -6,8 +6,8 @@ class Fish : public sf::CircleShape {
   static int count;
   std::string name;
   Fish() {};
-  Fish(float col_radius, float speed, float size, float dir, float dt,
-       float pos_x, float pos_y);
+  Fish(float _col_radius, float _speed, float _size, float _dir, float _dt,
+       float _pos_x, float _pos_y);
   void updatePosition();
   void avoid(const std::vector<Fish>& fishes);
   void mimicDirection(const std::vector<Fish>& from);

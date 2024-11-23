@@ -10,16 +10,16 @@ constexpr double PI_M_2 = 3.14159265358979323846 * 2;
 constexpr double PI_S_2 = 3.14159265358979323846 / 2;
 // TODO Rearrenge the fish methods according to fish.hpp
 int Fish::count = 0;
-Fish::Fish(float col_radius, float speed, float size, float dir = 0,
-           float dt = 0.0069444445F, float pos_x = 0, float pos_y = 0) {
-  this->col_radius = col_radius;
-  this->speed = speed;
-  this->dt = dt;
-  this->dir = dir;
-  this->setOrigin(size, size);
-  this->setRadius(size);
-  this->setPosition(pos_x, pos_y);
-  this->setDirection(dir);
+Fish::Fish(float _col_radius, float _speed, float _size, float _dir = 0,
+           float _dt = 0.0069444445F, float _pos_x = 0, float _pos_y = 0) {
+  this->col_radius = _col_radius;
+  this->speed = _speed;
+  this->dt = _dt;
+  this->dir = _dir;
+  this->setOrigin(_size, _size);
+  this->setRadius(_size);
+  this->setPosition(_pos_x, _pos_y);
+  this->setDirection(_dir);
   Fish::count++;
   this->name = "fish_" + std::to_string(count);
 }
@@ -88,7 +88,7 @@ void Fish::drawTrimmedCircle(float deg_value) {
   this->collision_lines = lines;
 }
 
-float Fish::getDirection() { return this->dir; }
+float Fish::getDirection() const { return this->dir; }
 
 std::vector<const Fish*> Fish::getCollisions(const std::vector<Fish>& fishes) {
   // TODO Cant make this method void due to performance issues. This should be
