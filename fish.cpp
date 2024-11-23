@@ -42,19 +42,28 @@ void Fish::avoid(const std::vector<Fish>& fishes) {
   this->avoid_vec = sf::Vector2f(sum.x, sum.y);
 }
 
-void Fish::mimicDirection(const std::vector<Fish>& from) {
-  float sum{};
-  int count{};
-
-  for (auto& n : this->nearest_fishes) {
-    sum += this->dir - n.getDirection();
+void Fish::mimicDirection(const std::vector<Fish>& fishes) {
+  int count{0};
+  double sum = 0;
+  std::vector<const Fish*> nearest = getCollisions(fishes);
+  for (auto& n : nearest) {
+    sum += this->dir - (n->getDirection());
+    count++;
   }
+  sum = sum / count;
   this->mimic_ang_rad = sum;
-  // std::cout << this->mimic_ang_rad << std::endl;
 }
 // TODO FIsh path render debugger (trails)
 
-void Fish::centerOfDirections() {}
+void Fish::centerOfFishes(std::vector<Fish>& fishes) {
+  sf::Vector2f sum_vec{};
+  int size = fishes.size() - 1;
+  for (auto& fish : fishes) {
+    if (fish.name != this->name) sum_vec += fish.getPosition();
+  }
+  sum_vec = sf::Vector2f(sum_vec.x / size, sum_vec.y / size);
+  this->cof_vec = this->getPosition() - sum_vec;
+}
 
 void Fish::drawCollisionDebug(sf::RenderWindow& window) {
   drawTrimmedCircle(this->dir);
@@ -140,43 +149,58 @@ void Fish::setSpeed(float speed) { this->speed = speed; }
 
 void Fish::setDirection(float rad) {
   this->dir += (abs(rad) / rad * this->turn_speed);
-  // std::cout << this->name << " " << this->dir << " " << distance_divider
-  //           << std::endl;
+
   this->setRotation(this->dir * 180 / PI);
 }
 
 void Fish::applyModifiedDirection() {
-  // TODO Does the conditions nessesary?
-  // TODO simplyfy the atan2(sub.x,sub.y) to distribute throught method
-  float rad;
   // double distance_divider = 10 * (log10(this->min_distance) +
   // this->col_radius);
-  double distance_divider = this->min_distance / 10;
+  double distance_divider = this->min_distance;
   // double distance_divider = 1
 
   sf::VertexArray lines(sf::Lines, 2);
   sf::Vector2f sum_vec = this->avoid_vec;
   if (sum_vec.x != 0 && sum_vec.y != 0) {
-    double evade_ang, rel_ang, positive_rad, positive_rel_ang;
-    rad = -(atan2(sum_vec.x, sum_vec.y)) + this->mimic_ang_rad * distance_divider;
+    const double avoid_const = 0.008, mimic_const = 0.03, cof_const = 0.01;
+    // --- Avoid ---
+    double rad, evade_ang, rel_ang, positive_rad, positive_rel_ang;
+    rad = -(atan2(sum_vec.x, sum_vec.y));
     positive_rad = rad < 0 ? rad + PI_M_2 : rad;
 
     rel_ang = positive_rad - this->dir + PI_S_2;
     positive_rel_ang = rel_ang < 0 ? rel_ang + PI_M_2 : rel_ang;
 
     evade_ang = rad + PI_S_2;
-    if (positive_rel_ang < PI) this->dir += this->turn_speed;
+    if (positive_rel_ang < PI) this->dir += avoid_const * abs(rel_ang);
+    if (positive_rel_ang > PI) this->dir -= avoid_const * abs(rel_ang);
+    // --- Mimic ---
+    if (this->mimic_ang_rad > PI)
+      this->dir += mimic_const * this->mimic_ang_rad;
+    if (this->mimic_ang_rad < PI)
+      this->dir -= mimic_const * this->mimic_ang_rad;
+    // --- COF ---
+    double cof_rad, cof_positive_rad, cof_rel_ang, positive_cof_rel_angle;
+    cof_rad = -(atan2(this->cof_vec.x, this->cof_vec.y));
+    cof_positive_rad = cof_rad < 0 ? cof_rad + PI_M_2 : cof_rad;
 
-    if (positive_rel_ang > PI) this->dir -= this->turn_speed;
+    cof_rel_ang = cof_positive_rad - this->dir + PI_S_2;
+    positive_cof_rel_angle =
+        cof_rel_ang < 0 ? cof_rel_ang + PI_M_2 : cof_rel_ang;
+    if (positive_cof_rel_angle < PI) this->dir -= cof_const * abs(cof_rel_ang);
+    if (positive_cof_rel_angle > PI) this->dir += cof_const * abs(cof_rel_ang);
 
+    // -- Direction Renderer Debugger ---
     lines[0].position = this->getPosition();
     lines[1].position =
-        Simulation::polarToCortesian(evade_ang) + this->getPosition();
+        Simulation::polarToCortesian(cof_rad + PI_S_2) + this->getPosition();
     lines[1].color = sf::Color::Red;
   }
 if (this->dir < 0) this->dir += PI_M_2;
-  if (PI_M_2 < this->dir) this->dir -= PI_M_2;
-  std::cout << mimic_ang_rad << std::endl;
+  // there, I have to add an extra 45 degrees for some reason. Im not figured
+  // out yet.
+  if (PI_M_2 + PI_S_2 / 2 < this->dir) this->dir -= PI_M_2;
+
   this->dir_lines = lines;
   this->setRotation(this->dir * 180 / PI);
 }
@@ -197,12 +221,10 @@ void Instance::run() {
   for (Fish& fish : fishes) {
     fish.updatePosition();
     checkBoundries(fish);
-    // fish.setPosition(checkBoundries(fish.getPosition()));
-
     fish.getCollisions(fishes);
     fish.avoid(fishes);
     fish.mimicDirection(fishes);
-    //  centerOfDirections();
+    fish.centerOfFishes(fishes);
     fish.applyModifiedDirection();
   }
 }

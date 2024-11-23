@@ -10,11 +10,11 @@ class Fish : public sf::CircleShape {
        float _pos_x, float _pos_y);
   void updatePosition();
   void avoid(const std::vector<Fish>& fishes);
-  void mimicDirection(const std::vector<Fish>& from);
-  void centerOfDirections();
+  void mimicDirection(const std::vector<Fish>& fishes);
+  void centerOfFishes(std::vector<Fish>& fishes);
   void drawCollisionDebug(sf::RenderWindow& window);
   void drawTrimmedCircle(float deg_value);
-  float getDirection();
+  float getDirection() const;
   std::vector<const Fish*> getCollisions(const std::vector<Fish>& fishes);
   void setCollisionRadius(float col);
   void setSpeed(float speed);
@@ -31,17 +31,16 @@ class Fish : public sf::CircleShape {
   float dt;
   sf::Vector2f pos;
   sf::Texture texture;
-  std::vector<Fish> nearest_fishes;
 
   float col_radius;
   float min_distance = 10000;
   int col_size;
   sf::Vector2f avoid_vec;
   double mimic_ang_rad;
-  sf::Vector2f cod_vec;
+  sf::Vector2f cof_vec;
   float speed;
   double dir;
-  float turn_speed = 0.01f;
+  float turn_speed = 0.02f;
 };
 
 namespace Simulation {
@@ -53,6 +52,7 @@ class Instance {
   void generate(std::mt19937& gen, std::uniform_real_distribution<float> dis,
                 int number_of_fish, int col_radius, float speed, float radius,
                 float dt);
+  void checkBoundries(Fish& fish);
 
   ~Instance() {}
   int window_size_x;
@@ -61,8 +61,6 @@ class Instance {
 
  private:
   std::vector<sf::Texture> imgmap;
-
-  void checkBoundries(Fish& fish);
 };
 
 float getDistance(const sf::Vector2f& a, const sf::Vector2f& b);
