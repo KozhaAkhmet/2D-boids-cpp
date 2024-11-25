@@ -9,9 +9,9 @@ class Fish : public sf::CircleShape {
   Fish(float _col_radius, float _speed, float _size, float _dir, float _dt,
        float _pos_x, float _pos_y);
   void updatePosition();
-  void avoid(const std::vector<Fish>& fishes);
-  void mimicDirection(const std::vector<Fish>& fishes);
-  void centerOfFishes(std::vector<Fish>& fishes);
+  void separation(const std::vector<Fish>& fishes);
+  void alignment(const std::vector<Fish>& fishes);
+  void cohesion(const std::vector<Fish>& fishes);
   void drawCollisionDebug(sf::RenderWindow& window);
   void drawTrimmedCircle(float deg_value);
   float getDirection() const;
@@ -35,12 +35,12 @@ class Fish : public sf::CircleShape {
   float col_radius;
   float min_distance = 10000;
   int col_size;
-  sf::Vector2f avoid_vec;
-  double mimic_ang_rad;
-  sf::Vector2f cof_vec;
   float speed;
   double dir;
   float turn_speed = 0.02f;
+  sf::Vector2f sep_vec;
+  sf::Vector2f coh_vec;
+  double allign_ang_rad;
 };
 
 namespace Simulation {
