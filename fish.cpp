@@ -56,12 +56,15 @@ void Fish::alignment(const std::vector<Fish>& fishes) {
 
 void Fish::cohesion(const std::vector<Fish>& fishes) {
   sf::Vector2f sum_vec{};
-  int size = fishes.size() - 1;
-  for (auto& fish : fishes) {
-    if (fish.name != this->name) sum_vec += fish.getPosition();
+std::vector<const Fish*> nearest = getCollisions(fishes);
+  int size = nearest.size();
+  for (auto& fish : nearest) {
+    sum_vec += fish->getPosition();
   }
   sum_vec = sf::Vector2f(sum_vec.x / size, sum_vec.y / size);
+if (size > 0) {
   this->coh_vec = this->getPosition() - sum_vec;
+}
 }
 
 void Fish::drawCollisionDebug(sf::RenderWindow& window) {
@@ -161,7 +164,7 @@ void Fish::applyModifiedDirection() {
   sf::VertexArray lines(sf::Lines, 2);
   sf::Vector2f sum_vec = this->sep_vec;
   if (sum_vec.x != 0 && sum_vec.y != 0) {
-    const double sep_const = 0.008, allign_const = 0.03, coh_const = 0.01;
+    const double sep_const = 0.01, allign_const = 0.01, coh_const = 0.01;
     // --- Separation ---
     double sep_ang, evade_ang, sep_rel_ang, positive_sep_ang, positive_sep_rel_ang;
     sep_ang = -(atan2(sum_vec.x, sum_vec.y));
