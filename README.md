@@ -17,7 +17,7 @@ As with most artificial life simulations, Boids is an example of emergent behavi
 - The fishes has a constant speed and the algorithm is based on the direction. So the boid algorithm that is implemented is not completely correct as it should been focused on the velocity vector.
 - There is a bug with the direction variable in fish class which is not doing a full circle instead it does with extra 45 degrees.
   
-## Compile Prerequirments
+## Compile Requirements
 
 - g++
 - sfml
@@ -34,12 +34,11 @@ for other sfml installations: https://www.sfml-dev.org/tutorials/2.6/start-linux
 
 ```bash
 
-$ g++ main.cpp fish.cpp fish.hpp -o sfml-app -lsfml-graphics -lsfml-window -lsfml-system
-
+$ make
 ```
 or 
 
 ```bash
 
-$ make
+$ g++ main.cpp fish.cpp fish.hpp -o sfml-app -lsfml-graphics -lsfml-window -lsfml-system
 ```
