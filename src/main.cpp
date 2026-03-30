@@ -2,15 +2,16 @@
 #include <random>
 
 #include "fish.hpp"
+#include "simulation.hpp"
+#include "iostream"
 
 int main() {
-
   const float radius = 10;
-  const float col_radius = 15;
-  const int num_of_fish = 100;
+  const float col_radius = 20;
+  const int num_of_fish = 200;
   const int window_size_x = 1000;
   const int window_size_y = 1000;
-  const int max_framerate = 30;
+  const int max_framerate = 60;
   const float speed = 80.F;
   const float dt = 0.0069444445F * 4;
 
@@ -34,11 +35,7 @@ int main() {
         window.close();
     }
     window.clear();
-
-    simulation.run();
-    for (auto &fish : simulation.fishes)
-      window.draw(fish);
-    // --- Rendering ---
+    simulation.run(window);
     window.display();
   }
   return 0;

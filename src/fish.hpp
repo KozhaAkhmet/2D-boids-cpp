@@ -15,7 +15,7 @@ class Fish : public sf::CircleShape {
   void drawCollisionDebug(sf::RenderWindow& window);
   void drawTrimmedCircle(float deg_value);
   float getDirection() const;
-  std::vector<const Fish*> getCollisions(const std::vector<Fish>& fishes);
+  std::vector<const Fish*> getCollisions(const std::vector<Fish>& fishes, int collision_range);
   void setCollisionRadius(float col);
   void setSpeed(float speed);
   void setDirection(float rad);
@@ -43,27 +43,3 @@ class Fish : public sf::CircleShape {
   double allign_ang_rad;
 };
 
-namespace Simulation {
-class Instance {
- public:
-  Instance(int _window_size_x, int _window_size_y);
-  void run();
-  void display(sf::RenderWindow& _window);
-  void generate(std::mt19937& gen, std::uniform_real_distribution<float> dis,
-                int number_of_fish, int col_radius, float speed, float radius,
-                float dt);
-  void checkBoundries(Fish& fish);
-
-  ~Instance() {}
-  int window_size_x;
-  int window_size_y;
-  std::vector<Fish> fishes;
-
- private:
-  std::vector<sf::Texture> imgmap;
-};
-
-float getDistance(const sf::Vector2f& a, const sf::Vector2f& b);
-sf::Vector2f polarToCortesian(double rad);
-double cortesianToPolar(sf::Vector2f vec);
-}  // namespace Simulation
