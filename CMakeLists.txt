@@ -45,8 +45,8 @@ endif()
 
 add_test(NAME DirectionTest COMMAND test-getCollision)
 
-add_executable(test-seperation
-    tests/test_seperation.cpp
+add_executable(test-separation
+    tests/test_separation.cpp
     src/fish.cpp
     src/fish.hpp
     src/sim_math.hpp
@@ -54,11 +54,11 @@ add_executable(test-seperation
     src/simulation.cpp
 )
 
-target_link_libraries(test-seperation PRIVATE sfml-graphics sfml-window sfml-system)
+target_link_libraries(test-separation PRIVATE sfml-graphics sfml-window sfml-system)
 
 if(doctest_FOUND)
-    target_link_libraries(test-seperation PRIVATE doctest::doctest)
-    target_compile_definitions(test-seperation PRIVATE DOCTEST_CONFIG_SUPER_STACK_CANARY)
+    target_link_libraries(test-separation PRIVATE doctest::doctest)
+    target_compile_definitions(test-separation PRIVATE DOCTEST_CONFIG_SUPER_STACK_CANARY)
 endif()
 
-add_test(NAME SeperationTest COMMAND test-seperation)
+add_test(NAME SeparationTest COMMAND test-separation)
