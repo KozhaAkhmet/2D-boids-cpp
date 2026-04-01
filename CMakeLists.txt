@@ -27,7 +27,7 @@ target_link_libraries(sfml-app PRIVATE sfml-graphics sfml-window sfml-system)
 
 find_package(doctest QUIET)
 
-add_executable(test-direction
+add_executable(test-getCollision
     tests/test_getCollision.cpp
     src/fish.cpp
     src/fish.hpp
@@ -36,11 +36,29 @@ add_executable(test-direction
     src/simulation.cpp
 )
 
-target_link_libraries(test-direction PRIVATE sfml-graphics sfml-window sfml-system)
+target_link_libraries(test-getCollision PRIVATE sfml-graphics sfml-window sfml-system)
 
 if(doctest_FOUND)
-    target_link_libraries(test-direction PRIVATE doctest::doctest)
-    target_compile_definitions(test-direction PRIVATE DOCTEST_CONFIG_SUPER_STACK_CANARY)
+    target_link_libraries(test-getCollision PRIVATE doctest::doctest)
+    target_compile_definitions(test-getCollision PRIVATE DOCTEST_CONFIG_SUPER_STACK_CANARY)
 endif()
 
-add_test(NAME DirectionTest COMMAND test-direction)
+add_test(NAME DirectionTest COMMAND test-getCollision)
+
+add_executable(test-seperation
+    tests/test_seperation.cpp
+    src/fish.cpp
+    src/fish.hpp
+    src/sim_math.hpp
+    src/simulation.hpp
+    src/simulation.cpp
+)
+
+target_link_libraries(test-seperation PRIVATE sfml-graphics sfml-window sfml-system)
+
+if(doctest_FOUND)
+    target_link_libraries(test-seperation PRIVATE doctest::doctest)
+    target_compile_definitions(test-seperation PRIVATE DOCTEST_CONFIG_SUPER_STACK_CANARY)
+endif()
+
+add_test(NAME SeperationTest COMMAND test-seperation)
