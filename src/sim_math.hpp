@@ -5,8 +5,8 @@
 #include "fish.hpp"
 #include <iostream>
 
-constexpr float radius = 10;
-constexpr float col_radius = 20;
+constexpr float icon_size = 10;
+constexpr float col_radius = 100;
 constexpr int num_of_fish = 200;
 constexpr int window_size_x = 1000;
 constexpr int window_size_y = 1000;
@@ -30,7 +30,7 @@ class SimMath {
     }
 
     sf::Vector2f polarToCortesian(double rad) {
-        return sf::Vector2f(cos(rad) * 50, sin(rad) * 50);
+        return sf::Vector2f(cos(rad), sin(rad));
     }
 
     double cortesianToPolar(sf::Vector2f vec) { return atan(vec.x / vec.y); }
@@ -50,7 +50,7 @@ class SimMath {
         for (auto& n : nearest) {
             sum += fish->getPosition() - n->getPosition();
         }
-        fish->setSepVec(sf::Vector2f(sum.x, sum.y));
+        fish->setSepVec(sum);
     }
 
     void alignment(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes) {
@@ -123,7 +123,7 @@ class SimMath {
             // -- Direction Renderer Debugger ---
             lines[0].position = fish_pos;
             lines[1].position =
-                SimMath::polarToCortesian(sep_ang + PI_S_2) + fish_pos;
+                SimMath::polarToCortesian(sep_ang + PI_S_2) * fish.get()->getCollisionRadius() + fish_pos;
             lines[1].color = sf::Color::Red;
         }
         if (dir < 0) dir += PI_M_2;

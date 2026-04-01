@@ -17,7 +17,7 @@ int main() {
 
   // --- Setup ---
   Simulation::Instance simulation{window_size_x, window_size_y};
-  simulation.generate(gen, dis, num_of_fish, col_radius, speed, radius, dt);
+  simulation.generate(gen, dis, num_of_fish, col_radius, speed, icon_size, dt);
 
   // --- Main Loop ---
   while (window.isOpen()) {

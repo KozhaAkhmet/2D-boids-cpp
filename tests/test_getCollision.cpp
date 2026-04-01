@@ -9,8 +9,7 @@
 #include "../src/sim_math.hpp"
 
 int main() {
-  const float radius = 10;
-  const float col_radius = 20;
+  const float col_radius = 100;
   const int num_of_fish = 200;
   const int window_size_x = 300;
   const int window_size_y = 300;
@@ -32,13 +31,13 @@ int main() {
     imgmap.push_back(t);
   }
 
-  Fish dummy_fish(col_radius * 5, speed, radius, PI + PI_S_2,
+  Fish dummy_fish(col_radius, speed, icon_size, PI + PI_S_2,
                              dt, window_size_x/2,
                              window_size_y/2);
 
   dummy_fish.setTexture(&imgmap[3]);
 
-  Fish cursorFish(col_radius * 5, speed, radius, PI + PI_S_2,
+  Fish cursorFish(col_radius, speed, icon_size, PI + PI_S_2,
                              dt, window_size_x/2 - 20,
                              window_size_y/2);
   
