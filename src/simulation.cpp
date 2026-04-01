@@ -18,13 +18,13 @@ Instance::Instance(int _window_size_x, int _window_size_y)
 
 void Instance::run(sf::RenderWindow& window){
   for (Fish& fish : fishes) {
-    fish.updatePosition();
+    sim_math.updatePosition(fish);
     checkBoundries(fish);
     // fish.getCollisions(fishes);
-    fish.separation(fishes);
-    fish.alignment(fishes);
-    fish.cohesion(fishes);
-    fish.applyModifiedDirection();
+    sim_math.separation(fish,fishes);
+    sim_math.alignment(fish, fishes);
+    sim_math.cohesion(fish, fishes);
+    sim_math.applyModifiedDirection(fish);
     window.draw(fish);
   }
 }
