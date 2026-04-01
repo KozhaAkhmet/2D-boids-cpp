@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <memory>
 
 #include "simulation.hpp"
 #include "fish.hpp"
@@ -17,42 +18,35 @@ Instance::Instance(int _window_size_x, int _window_size_y)
 }
 
 void Instance::run(sf::RenderWindow& window){
-  for (Fish& fish : fishes) {
+  for (auto& fish : fishes) {
     sim_math.updatePosition(fish);
-    checkBoundries(fish);
-    // fish.getCollisions(fishes);
-    sim_math.separation(fish,fishes);
+    checkBoundries(*fish);
+    sim_math.separation(fish, fishes);
     sim_math.alignment(fish, fishes);
     sim_math.cohesion(fish, fishes);
     sim_math.applyModifiedDirection(fish);
-    window.draw(fish);
+    window.draw(*fish);
   }
 }
 
 void Instance::display(sf::RenderWindow& _window) {
   for (auto& fish : fishes) {
-    _window.draw(fish);
+    _window.draw(*fish);
   }
 }
 
-// Generates the fiishes, also randomizes fishes position, direction and
-// texture.
 void Instance::generate(std::mt19937& gen,
                         std::uniform_real_distribution<float> dis,
                         int number_of_fish, int col_radius, float speed,
                         float radius, float dt) {
   for (int i = 0; i < number_of_fish; i++) {
-    fishes.emplace_back(Fish(col_radius * 5, speed, radius, (dis(gen) * PI_M_2),
+    fishes.emplace_back(std::make_shared<Fish>(col_radius * 5, speed, radius, (dis(gen) * PI_M_2),
                              dt, (dis(gen) * window_size_x),
                              (dis(gen) * window_size_y)));
-    // Choose randomly fishes from res file
-    // fishes[i].setTexture(&imgmap[dis(gen) * imgmap.size()]);
-    fishes[i].setTexture(&imgmap[3]);
+    fishes[i]->setTexture(&imgmap[3]);
   }
 }
 
-// Method checks the boundaries of fish. If its out of bounds then modifies its
-// position.
 void Instance::checkBoundries(Fish& fish) {
   sf::Vector2f temp = fish.getPosition();
   if (temp.x > window_size_x)
@@ -64,14 +58,6 @@ void Instance::checkBoundries(Fish& fish) {
   else if (temp.y < 0)
     temp.y = window_size_y;
   fish.setPosition(temp);
-}
-
-bool operator==(const Fish& lhs, const Fish& rhs) {
-  return lhs == rhs ? true : false;
-}
-
-bool operator!=(const Fish& lhs, const Fish& rhs) {
-  return lhs == rhs ? false : true;
 }
 
 }  // namespace Simulation

@@ -24,7 +24,6 @@ public:
 
 private:
   std::vector<sf::Texture> imgmap;
-  std::vector<Fish> fishes;
-
+  std::vector<std::shared_ptr<Fish>> fishes;
 };
 }  // namespace Simulation

@@ -1,9 +1,9 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <math.h>
+#include <memory>
 #include "fish.hpp"
 #include <iostream>
-#include <memory>
 
 constexpr float radius = 10;
 constexpr float col_radius = 20;
@@ -35,37 +35,37 @@ class SimMath {
 
     double cortesianToPolar(sf::Vector2f vec) { return atan(vec.x / vec.y); }
 
-    void updatePosition(Fish& fish) {
-        sf::Vector2f temp = fish.getPosition();
+    void updatePosition(std::shared_ptr<Fish> fish) {
+        sf::Vector2f temp = fish->getPosition();
 
-        temp.x += fish.getSpeed() * dt * cos(fish.getDirection());
-        temp.y += fish.getSpeed() * dt * sin(fish.getDirection());
+        temp.x += fish->getSpeed() * dt * cos(fish->getDirection());
+        temp.y += fish->getSpeed() * dt * sin(fish->getDirection());
 
-        fish.setPosition(temp);
+        fish->setPosition(temp);
     }
 
-    void separation(Fish& fish, const std::vector<Fish>& fishes) {
+    void separation(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes) {
         sf::Vector2f sum = {};
         std::vector<const Fish*> nearest = getCollisions(fish, fishes, col_radius);
         for (auto& n : nearest) {
-            sum += fish.getPosition() - n->getPosition();
+            sum += fish->getPosition() - n->getPosition();
         }
-        fish.setSepVec(sf::Vector2f(sum.x, sum.y));
+        fish->setSepVec(sf::Vector2f(sum.x, sum.y));
     }
 
-    void alignment(Fish& fish, const std::vector<Fish>& fishes) {
+    void alignment(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes) {
         int count{0};
         double sum = 0;
         std::vector<const Fish*> nearest = getCollisions(fish, fishes, col_radius * 2 / 3);
         for (auto& n : nearest) {
-            sum += fish.getDirection() - (n->getDirection());
+            sum += fish->getDirection() - (n->getDirection());
             count++;
         }
         sum = sum / count;
-        fish.setAllignAngle(sum);
+        fish->setAllignAngle(sum);
     }
 
-    void cohesion(Fish& fish, const std::vector<Fish>& fishes) {
+    void cohesion(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes) {
         sf::Vector2f sum_vec{};
         std::vector<const Fish*> nearest = getCollisions(fish, fishes, col_radius * 1 / 3);
         int size = nearest.size();
@@ -74,22 +74,22 @@ class SimMath {
         }
         sum_vec = sf::Vector2f(sum_vec.x / size, sum_vec.y / size);
         if (size > 0) {
-            fish.getCohVec() = fish.getPosition() - sum_vec;
+            fish->getCohVec() = fish->getPosition() - sum_vec;
         }
     }
 
-    void applyModifiedDirection(Fish& fish) {
+    void applyModifiedDirection(std::shared_ptr<Fish> fish) {
         // double distance_divider = 10 * (log10(this->min_distance) +
         // this->col_radius);
-        double distance_divider = fish.getMinDistance();
+        double distance_divider = fish->getMinDistance();
         // double distance_divider = 1
 
         sf::VertexArray lines(sf::Lines, 2);
-        sf::Vector2f sum_vec = fish.getSepVec();
-        sf::Vector2f coh_vec = fish.getCohVec();
-        sf::Vector2f fish_pos = fish.getPosition();
-        float dir = fish.getDirection();
-        float allign_ang_rad = fish.getAllignAngle();
+        sf::Vector2f sum_vec = fish->getSepVec();
+        sf::Vector2f coh_vec = fish->getCohVec();
+        sf::Vector2f fish_pos = fish->getPosition();
+        float dir = fish->getDirection();
+        float allign_ang_rad = fish->getAllignAngle();
 
         if (sum_vec.x != 0 && sum_vec.y != 0) {
             const double sep_const = 0.004, allign_const = 0.007, coh_const = 0.006;
@@ -131,27 +131,27 @@ class SimMath {
         // out yet.
         if (PI_M_2 + PI_S_2 / 2 < dir) dir -= PI_M_2;
 
-        fish.setDirLines(lines);
-        fish.setRotation(dir* 180 / PI);
+        fish->setDirLines(lines);
+        fish->setRotation(dir* 180 / PI);
     }
 
-    std::vector<const Fish*> getCollisions(Fish& fish, const std::vector<std::unique_ptr<Fish>>& fishes,
+    std::vector<const Fish*> getCollisions(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes,
                                              int _col_radius) {
         // TODO Cant make this method void due to performance issues. This should be
         // updated later or with this way we have to call it every time not once.
-        sf::Vector2f pos = fish.getPosition();
+        sf::Vector2f pos = fish->getPosition();
         std::vector<const Fish*> nearest = {};
         sf::VertexArray lines(sf::Lines, fishes.size() * 2);
         for (int i = 0; i < fishes.size(); i++) {
             const Fish* target = fishes.at(i).get();
             // if shorter from certain co_radius and is not this fish.
-            if ((&fish != target) &&
+            if ((fish.get() != target) &&
                 SimMath::getDistance(pos, target->getPosition()) < _col_radius) {
                 // Get the vector from this to target
                 sf::Vector2f sub_vec = pos - target->getPosition();
                 // Get the angle of that vector
 
-                double rad = (fish.getDirection() + PI_S_2) - atan2(sub_vec.x, -sub_vec.y);
+                double rad = (fmod(fish->getDirection(), PI_M_2) + PI_S_2) - atan2(sub_vec.x, -sub_vec.y);
 
                 double rel_angle = rad < 0 ? rad + PI_M_2 : rad;
 
@@ -159,7 +159,7 @@ class SimMath {
 
                 // std::cout << rad * 180 / PI << "  " << rel_angle * 180 / PI <<
                 // std::endl;
-                std::cout << fish.name << " " << nearest.size() <<  " distance " <<  SimMath::getDistance(pos, target->getPosition()) << std::endl;
+                std::cout << fish->name << " " << nearest.size() <<  " distance " <<  SimMath::getDistance(pos, target->getPosition()) << std::endl;
                 
                 if ((PI / 4 < rel_angle && rel_angle < 7 * PI / 4)) {
                     lines[i * 2 + 1].position = pos;
@@ -168,15 +168,15 @@ class SimMath {
 
                     float distance_to_target =
                         SimMath::getDistance(pos, target->getPosition());
-                    fish.setMinDistance( distance_to_target < fish.getMinDistance()
+                    fish->setMinDistance( distance_to_target < fish->getMinDistance()
                                             ? distance_to_target
-                                            : fish.getMinDistance());
+                                            : fish->getMinDistance());
 
                     nearest.emplace_back(target);
                 }
             }
         }
-        fish.setAffectLines(lines);
+        fish->setAffectLines(lines);
         return nearest;
     }
 };
