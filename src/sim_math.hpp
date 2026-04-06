@@ -13,11 +13,12 @@ constexpr int window_size_y = 1000;
 constexpr int max_framerate = 60;
 constexpr float speed = 80.F;
 
-constexpr double PI = 3.14159265358979323846;
-constexpr double PI_M_2 = 3.14159265358979323846 * 2;
-constexpr double PI_S_2 = 3.14159265358979323846 / 2;
+constexpr float PI = 3.1415926F; //180 degree
+constexpr float PI_M_2 = PI * 2; //360 degree
+constexpr float PI_D_2 = PI / 2; //90 degree
+constexpr float PI_D_4 = PI / 4; //45 degree
 
-constexpr double dt = 0.0069444445F * 4;
+constexpr float dt = 0.0069444F * 4;
 
 //TODO reverse parameters inside Simmath methods. Use fish to fishes relation 
 
