@@ -34,7 +34,18 @@ class SimMath {
         return sf::Vector2f(cos(rad), sin(rad));
     }
 
-    double cortesianToPolar(sf::Vector2f vec) { return atan(vec.x / vec.y); }
+    float cortesianToPolar(sf::Vector2f vec) {
+        float ang_rad = atanf(vec.x / vec.y);
+        if(vec.x == 0 || vec.y == 0)
+            return 0;
+
+        if(vec.x > 0 && vec.y > 0) //First Quadrant
+            return ang_rad;
+        else if(vec.x > 0 && vec.y < 0) //Fourth Quadrant
+            return ang_rad + PI_M_2;
+        else 
+            return ang_rad + PI; //Second and Third are the same 
+    }
 
     void updatePosition(std::shared_ptr<Fish> fish) {
         sf::Vector2f temp = fish->getPosition();
