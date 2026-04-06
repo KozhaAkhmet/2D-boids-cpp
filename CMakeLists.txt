@@ -12,6 +12,7 @@ add_executable(2d-boids-cpp
 add_library(game_lib     
     src/fish.cpp
     src/fish.hpp
+    src/consts.hpp
     src/sim_math.cpp
     src/sim_math.hpp
     src/simulation.hpp
