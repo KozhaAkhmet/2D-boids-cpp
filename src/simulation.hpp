@@ -18,7 +18,6 @@ public:
   void checkBoundries(Fish& fish);
 
   ~Instance() {}
-  SimMath sim_math;
   int window_size_x;
   int window_size_y;
 

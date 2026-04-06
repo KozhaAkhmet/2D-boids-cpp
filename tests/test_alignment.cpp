@@ -23,7 +23,7 @@ int main() {
   window.setFramerateLimit(max_framerate);
   
   std::vector<sf::Texture> imgmap;
-  for (const auto& file : std::filesystem::directory_iterator("res/")) {
+  for (const auto& file : std::filesystem::directory_iterator("../res/")) {
     sf::Texture t;
     t.loadFromFile(file.path());
     t.setSmooth(true);
@@ -45,7 +45,6 @@ int main() {
   auto cursor_ptr = std::make_shared<Fish>(cursorFish);
   
   std::vector<std::shared_ptr<Fish>> test_fishes = {dummy_ptr, cursor_ptr};
-  SimMath sim_math;
 
   float increment_ang= 1;
   while (window.isOpen()) {
@@ -65,10 +64,8 @@ int main() {
     cursor_ptr->setPosition(worldPos);
 
     dummy_ptr->setDirection(increment_ang++);
-    // sim_math.alignment(dummy_ptr, test_fishes);
-    sim_math.alignment(cursor_ptr, test_fishes);
-    // sim_math.applyModifiedDirection(dummy_ptr);
-    sim_math.applyModifiedDirection(cursor_ptr);
+    SimMath::alignment(cursor_ptr, test_fishes);
+    SimMath::applyModifiedDirection(cursor_ptr);
 
     dummy_ptr->drawCollisionDebug(window);
     cursor_ptr->drawCollisionDebug(window);

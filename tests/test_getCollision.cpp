@@ -45,7 +45,6 @@ int main() {
   auto cursor_ptr = std::make_shared<Fish>(cursorFish);
   
   std::vector<std::shared_ptr<Fish>> test_fishes = {dummy_ptr, cursor_ptr};
-  SimMath sim_math;
 
   float increment_ang= 1;
   while (window.isOpen()) {
@@ -64,7 +63,7 @@ int main() {
       worldPos.y = 0;
     cursor_ptr->setPosition(worldPos);
     
-    sim_math.getCollisions(dummy_ptr, test_fishes, dummy_ptr->getCollisionRadius());
+    SimMath::getCollisions(dummy_ptr, test_fishes, dummy_ptr->getCollisionRadius());
     dummy_ptr->drawCollisionDebug(window);
 
     dummy_ptr->setDirection(increment_ang++);
