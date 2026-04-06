@@ -23,7 +23,7 @@ int main() {
   window.setFramerateLimit(max_framerate);
   
   std::vector<sf::Texture> imgmap;
-  for (const auto& file : std::filesystem::directory_iterator("../res/")) {
+  for (const auto& file : std::filesystem::directory_iterator("res/")) {
     sf::Texture t;
     t.loadFromFile(file.path());
     t.setSmooth(true);
@@ -31,13 +31,13 @@ int main() {
     imgmap.push_back(t);
   }
 
-  Fish dummy_fish(col_radius, speed, icon_size, PI + PI_D_2,
+  Fish dummy_fish(col_radius, speed, icon_size, PI + PI_S_2,
                              dt, window_size_x/2,
                              window_size_y/2);
 
   dummy_fish.setTexture(&imgmap[3]);
 
-  Fish cursorFish(col_radius, speed, icon_size, PI + PI_D_2,
+  Fish cursorFish(col_radius, speed, icon_size, PI + PI_S_2,
                              dt, window_size_x/2 - 20,
                              window_size_y/2);
   
@@ -47,7 +47,6 @@ int main() {
   std::vector<std::shared_ptr<Fish>> test_fishes = {dummy_ptr, cursor_ptr};
   SimMath sim_math;
 
-  float increment_ang= 1;
   while (window.isOpen()) {
     sf::Event event;
     while (window.pollEvent(event)) {
@@ -64,10 +63,13 @@ int main() {
       worldPos.y = 0;
     cursor_ptr->setPosition(worldPos);
     
-    sim_math.getCollisions(dummy_ptr, test_fishes, dummy_ptr->getCollisionRadius());
-    dummy_ptr->drawCollisionDebug(window);
+    sim_math.separation(dummy_ptr, test_fishes);
+    sim_math.separation(cursor_ptr, test_fishes);
+    sim_math.applyModifiedDirection(dummy_ptr);
+    sim_math.applyModifiedDirection(cursor_ptr);
 
-    dummy_ptr->setDirection(increment_ang++);
+    dummy_ptr->drawCollisionDebug(window);
+    cursor_ptr->drawCollisionDebug(window);
     window.draw(*cursor_ptr);
     window.draw(*dummy_ptr);
 

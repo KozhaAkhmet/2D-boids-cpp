@@ -31,13 +31,13 @@ int main() {
     imgmap.push_back(t);
   }
 
-  Fish dummy_fish(col_radius, speed, icon_size, PI + PI_S_2,
+  Fish dummy_fish(col_radius, speed, icon_size, PI + PI_D_2,
                              dt, window_size_x/2,
                              window_size_y/2);
 
   dummy_fish.setTexture(&imgmap[3]);
 
-  Fish cursorFish(col_radius, speed, icon_size, PI + PI_S_2,
+  Fish cursorFish(col_radius, speed, icon_size, PI + PI_D_2,
                              dt, window_size_x/2 - 20,
                              window_size_y/2);
   

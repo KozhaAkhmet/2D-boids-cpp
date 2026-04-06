@@ -13,7 +13,7 @@ int main() {
   const int num_of_fish = 200;
   const int window_size_x = 300;
   const int window_size_y = 300;
-  const int max_framerate = 60;
+  const int max_framerate = 20;
   const float speed = 80.F;
   const float dt = 0.0069444445F * 4;
 
@@ -23,7 +23,7 @@ int main() {
   window.setFramerateLimit(max_framerate);
   
   std::vector<sf::Texture> imgmap;
-  for (const auto& file : std::filesystem::directory_iterator("../res/")) {
+  for (const auto& file : std::filesystem::directory_iterator("res/")) {
     sf::Texture t;
     t.loadFromFile(file.path());
     t.setSmooth(true);
@@ -63,11 +63,15 @@ int main() {
     if(worldPos.y<0)
       worldPos.y = 0;
     cursor_ptr->setPosition(worldPos);
-    
-    sim_math.getCollisions(dummy_ptr, test_fishes, dummy_ptr->getCollisionRadius());
-    dummy_ptr->drawCollisionDebug(window);
 
     dummy_ptr->setDirection(increment_ang++);
+    // sim_math.alignment(dummy_ptr, test_fishes);
+    sim_math.alignment(cursor_ptr, test_fishes);
+    // sim_math.applyModifiedDirection(dummy_ptr);
+    sim_math.applyModifiedDirection(cursor_ptr);
+
+    dummy_ptr->drawCollisionDebug(window);
+    cursor_ptr->drawCollisionDebug(window);
     window.draw(*cursor_ptr);
     window.draw(*dummy_ptr);
 
