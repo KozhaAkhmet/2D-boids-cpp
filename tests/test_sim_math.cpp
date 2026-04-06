@@ -1,7 +1,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
 #include "doctest/doctest.h"
-#include "../src/sim_math.hpp"
+#include "sim_math.hpp"
 
 namespace SimMath{
 TEST_CASE("Zero Point") {

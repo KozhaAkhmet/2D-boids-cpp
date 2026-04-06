@@ -19,6 +19,8 @@ add_library(game_lib
     src/simulation.cpp
 )
 
+target_include_directories(game_lib PUBLIC ${CMAKE_SOURCE_DIR}/src)
+
 add_custom_command(TARGET 2d-boids-cpp POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_SOURCE_DIR}/res

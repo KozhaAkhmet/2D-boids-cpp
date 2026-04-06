@@ -2,8 +2,8 @@
 #include <filesystem>
 #include <memory>
 
-#include "../src/fish.hpp"
-#include "../src/sim_math.hpp"
+#include "fish.hpp"
+#include "sim_math.hpp"
 
 int main() {
   const float col_radius = 100;
