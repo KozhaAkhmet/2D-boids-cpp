@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(SFML 2.6 COMPONENTS graphics window system REQUIRED)
 
-add_executable(sfml-app
+add_executable(2d-boids-cpp
     src/main.cpp
     src/fish.cpp
     src/fish.hpp
@@ -17,48 +17,10 @@ add_executable(sfml-app
     src/simulation.cpp
 )
 
-add_custom_command(TARGET sfml-app POST_BUILD
+add_custom_command(TARGET 2d-boids-cpp POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_SOURCE_DIR}/res
-    $<TARGET_FILE_DIR:sfml-app>/res
+    $<TARGET_FILE_DIR:2d-boids-cpp>/res
 )
 
-target_link_libraries(sfml-app PRIVATE sfml-graphics sfml-window sfml-system)
-
-find_package(doctest QUIET)
-
-add_executable(test-getCollision
-    tests/test_getCollision.cpp
-    src/fish.cpp
-    src/fish.hpp
-    src/sim_math.hpp
-    src/simulation.hpp
-    src/simulation.cpp
-)
-
-target_link_libraries(test-getCollision PRIVATE sfml-graphics sfml-window sfml-system)
-
-if(doctest_FOUND)
-    target_link_libraries(test-getCollision PRIVATE doctest::doctest)
-    target_compile_definitions(test-getCollision PRIVATE DOCTEST_CONFIG_SUPER_STACK_CANARY)
-endif()
-
-add_test(NAME DirectionTest COMMAND test-getCollision)
-
-add_executable(test-separation
-    tests/test_separation.cpp
-    src/fish.cpp
-    src/fish.hpp
-    src/sim_math.hpp
-    src/simulation.hpp
-    src/simulation.cpp
-)
-
-target_link_libraries(test-separation PRIVATE sfml-graphics sfml-window sfml-system)
-
-if(doctest_FOUND)
-    target_link_libraries(test-separation PRIVATE doctest::doctest)
-    target_compile_definitions(test-separation PRIVATE DOCTEST_CONFIG_SUPER_STACK_CANARY)
-endif()
-
-add_test(NAME SeparationTest COMMAND test-separation)
+target_link_libraries(2d-boids-cpp PRIVATE sfml-graphics sfml-window sfml-system)

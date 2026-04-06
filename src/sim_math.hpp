@@ -100,10 +100,10 @@ class SimMath {
             sep_ang = -(atan2(sum_vec.x, sum_vec.y));
             positive_sep_ang = sep_ang < 0 ? sep_ang + PI_M_2 : sep_ang;
 
-            sep_rel_ang = positive_sep_ang - dir + PI_S_2;
+            sep_rel_ang = positive_sep_ang - dir + PI_D_2;
             positive_sep_rel_ang = sep_rel_ang < 0 ? sep_rel_ang + PI_M_2 : sep_rel_ang;
 
-            evade_ang = sep_ang + PI_S_2;
+            evade_ang = sep_ang + PI_D_2;
             if (positive_sep_rel_ang < PI) dir += sep_const * abs(sep_rel_ang);
             if (positive_sep_rel_ang > PI) dir -= sep_const * abs(sep_rel_ang);
             // --- Alignment ---
@@ -116,7 +116,7 @@ class SimMath {
             coh_rad = -(atan2(coh_vec.x, coh_vec.y));
             positive_coh_ang = coh_rad < 0 ? coh_rad + PI_M_2 : coh_rad;
 
-            coh_rel_ang = positive_coh_ang - dir + PI_S_2;
+            coh_rel_ang = positive_coh_ang - dir + PI_D_2;
             positive_coh_rel_ang = coh_rel_ang < 0 ? coh_rel_ang + PI_M_2 : coh_rel_ang;
             if (positive_coh_rel_ang < PI) dir -= coh_const * abs(coh_rel_ang);
             if (positive_coh_rel_ang > PI) dir += coh_const * abs(coh_rel_ang);
@@ -124,13 +124,13 @@ class SimMath {
             // -- Direction Renderer Debugger ---
             lines[0].position = fish_pos;
             lines[1].position =
-                SimMath::polarToCortesian(sep_ang + PI_S_2) * fish.get()->getCollisionRadius() + fish_pos;
+                SimMath::polarToCortesian(sep_ang + PI_D_2) * fish.get()->getCollisionRadius() + fish_pos;
             lines[1].color = sf::Color::Red;
         }
         if (dir < 0) dir += PI_M_2;
         // TODO I have to add an extra 45 degrees for some reason. Im not figured
         // out yet.
-        if (PI_M_2 + PI_S_2 / 2 < dir) dir -= PI_M_2;
+        if (PI_M_2 + PI_D_2 / 2 < dir) dir -= PI_M_2;
 
         fish->setDirLines(lines);
         fish->setRotation(dir* 180 / PI);
@@ -152,7 +152,7 @@ class SimMath {
                 sf::Vector2f sub_vec = pos - target->getPosition();
                 // Get the angle of that vector
 
-                double rad = (fmod(fish->getDirection(), PI_M_2) + PI_S_2) - atan2(sub_vec.x, -sub_vec.y);
+                double rad = (fmod(fish->getDirection(), PI_M_2) + PI_D_2) - atan2(sub_vec.x, -sub_vec.y);
 
                 double rel_angle = rad < 0 ? rad + PI_M_2 : rad;
 
