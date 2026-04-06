@@ -2,10 +2,8 @@
 
 #include <SFML/Graphics.hpp>
 #include <random>
-#include "sim_math.hpp"
-
-class Fish;
-
+#include "fish.hpp"
+#include "memory"
 namespace Simulation {
 class Instance {
 public:

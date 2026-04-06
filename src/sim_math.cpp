@@ -1,5 +1,7 @@
 #include "sim_math.hpp"
 #include <iostream>
+#include "math.h"
+#include "consts.hpp"
 
 float SimMath::getDistance(const sf::Vector2f& a, const sf::Vector2f& b) {
     sf::Vector2f sub = a - b;

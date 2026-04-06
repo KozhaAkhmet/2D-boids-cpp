@@ -3,7 +3,7 @@
 #include "doctest/doctest.h"
 #include "../src/sim_math.hpp"
 
-
+namespace SimMath{
 TEST_CASE("Zero Point") {
     sf::Vector2f vec {0,0};
     REQUIRE_EQ(SimMath::cortesianToPolar(vec) , 0);
@@ -27,4 +27,5 @@ TEST_CASE("Third Quadrant") {
 TEST_CASE("Fourth Quadrant") {
     sf::Vector2f vec {1,-1};
     REQUIRE_EQ(SimMath::cortesianToPolar(vec) , doctest::Approx(PI_D_4 + PI_D_2 + PI).epsilon(1e-6));
+}
 }

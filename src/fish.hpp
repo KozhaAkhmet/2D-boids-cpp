@@ -1,11 +1,10 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <random>
+#include "consts.hpp"
 
 class Fish : public sf::CircleShape {
 public:
      static int count;
-     double PI = 3.14159265358979323846;
      std::string name;
      Fish() {};
      Fish(float _col_radius, float _speed, float _size, float _dir, float _dt,
@@ -15,7 +14,7 @@ public:
 
      void setDirection(float rad) {
           this->dir += (abs(rad) / rad * this->turn_speed);
-          this->setRotation(this->dir * 180 / PI);
+          this->setRotation(this->dir * 180 / SimMath::PI);
      }
      void setCollisionRadius(float col) { this->col_radius = col; }
      void setSpeed(float speed) { this->speed = speed; }
@@ -40,7 +39,7 @@ public:
 
      ~Fish() {}
 
-     private:
+private:
      float dt;
      sf::Texture texture;
 

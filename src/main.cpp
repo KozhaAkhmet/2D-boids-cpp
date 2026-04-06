@@ -1,10 +1,9 @@
 #include <SFML/Graphics.hpp>
 #include <random>
 
-#include "fish.hpp"
 #include "simulation.hpp"
-#include "iostream"
-#include "sim_math.hpp"
+
+using namespace SimMath;
 
 int main() {
   sf::RenderWindow window(sf::VideoMode(window_size_x, window_size_y),

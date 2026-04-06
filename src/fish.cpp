@@ -1,5 +1,5 @@
 #include "fish.hpp"
-#include "sim_math.hpp"
+#include "math.h"
 
 int Fish::count = 0;
 Fish::Fish(float _col_radius, float _speed, float _size, float _dir = 0,
@@ -26,8 +26,8 @@ void Fish::drawCollisionDebug(sf::RenderWindow& window) {
 void Fish::drawTrimmedCircle(float deg_value) {
   int resolution = 10;
   sf::Vector2f init_pos = this->getPosition();
-  float view_deg = 3 * PI / 2;
-  float cur_deg = PI - PI / 8;
+  float view_deg = 3 * SimMath::PI / 2;
+  float cur_deg = SimMath::PI - SimMath::PI / 8;
   // float offset_deg = cur_deg + view_deg / 2 + view_deg - deg_value;  // For
   // 45 degree and view_ang = PI/4 float offset_deg = cur_deg + view_deg / 2 -
   // deg_value;  // For 90 degree and view_ang = PI/2

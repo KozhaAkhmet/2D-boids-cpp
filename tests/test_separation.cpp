@@ -1,11 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include <filesystem>
-#include <random>
 #include <memory>
 
 #include "../src/fish.hpp"
-#include "../src/simulation.hpp"
-#include "iostream"
 #include "../src/sim_math.hpp"
 
 int main() {
@@ -31,13 +28,13 @@ int main() {
     imgmap.push_back(t);
   }
 
-  Fish dummy_fish(col_radius, speed, icon_size, PI + PI_D_2,
+  Fish dummy_fish(col_radius, speed, SimMath::icon_size, SimMath::PI + SimMath::PI_D_2,
                              dt, window_size_x/2,
                              window_size_y/2);
 
   dummy_fish.setTexture(&imgmap[3]);
 
-  Fish cursorFish(col_radius, speed, icon_size, PI + PI_D_2,
+  Fish cursorFish(col_radius, speed, SimMath::icon_size, SimMath::PI + SimMath::PI_D_2,
                              dt, window_size_x/2 - 20,
                              window_size_y/2);
   

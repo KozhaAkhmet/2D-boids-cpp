@@ -40,7 +40,7 @@ void Instance::generate(std::mt19937& gen,
                         int number_of_fish, int col_radius, float speed,
                         float radius, float dt) {
   for (int i = 0; i < number_of_fish; i++) {
-    fishes.emplace_back(std::make_shared<Fish>(col_radius * 5, speed, radius, (dis(gen) * PI_M_2),
+    fishes.emplace_back(std::make_shared<Fish>(col_radius * 5, speed, radius, (dis(gen) * SimMath::PI_M_2),
                              dt, (dis(gen) * window_size_x),
                              (dis(gen) * window_size_y)));
     fishes[i]->setTexture(&imgmap[3]);
