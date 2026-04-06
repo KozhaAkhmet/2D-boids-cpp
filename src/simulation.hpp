@@ -4,10 +4,9 @@
 #include <random>
 #include "fish.hpp"
 #include "memory"
-namespace Simulation {
-class Instance {
+class Simulation {
 public:
-  Instance(int _window_size_x, int _window_size_y);
+  Simulation(int _window_size_x, int _window_size_y);
   void run(sf::RenderWindow& window);
   void display(sf::RenderWindow& _window);
   void generate(std::mt19937& gen, std::uniform_real_distribution<float> dis,
@@ -15,7 +14,7 @@ public:
                 float dt);
   void checkBoundries(Fish& fish);
 
-  ~Instance() {}
+  ~Simulation() {}
   int window_size_x;
   int window_size_y;
 
@@ -23,4 +22,3 @@ private:
   std::vector<sf::Texture> imgmap;
   std::vector<std::shared_ptr<Fish>> fishes;
 };
-}  // namespace Simulation

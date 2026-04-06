@@ -5,8 +5,7 @@
 #include "fish.hpp"
 #include "sim_math.hpp"
 
-namespace Simulation {
-Instance::Instance(int _window_size_x, int _window_size_y)
+Simulation::Simulation(int _window_size_x, int _window_size_y)
     : window_size_x(_window_size_x), window_size_y(_window_size_y) {
   for (const auto& file : std::filesystem::directory_iterator("res/")) {
     sf::Texture t;
@@ -17,7 +16,7 @@ Instance::Instance(int _window_size_x, int _window_size_y)
   }
 }
 
-void Instance::run(sf::RenderWindow& window){
+void Simulation::run(sf::RenderWindow& window){
   for (auto& fish : fishes) {
     SimMath::updatePosition(fish);
     checkBoundries(*fish);
@@ -29,13 +28,13 @@ void Instance::run(sf::RenderWindow& window){
   }
 }
 
-void Instance::display(sf::RenderWindow& _window) {
+void Simulation::display(sf::RenderWindow& _window) {
   for (auto& fish : fishes) {
     _window.draw(*fish);
   }
 }
 
-void Instance::generate(std::mt19937& gen,
+void Simulation::generate(std::mt19937& gen,
                         std::uniform_real_distribution<float> dis,
                         int number_of_fish, int col_radius, float speed,
                         float radius, float dt) {
@@ -47,7 +46,7 @@ void Instance::generate(std::mt19937& gen,
   }
 }
 
-void Instance::checkBoundries(Fish& fish) {
+void Simulation::checkBoundries(Fish& fish) {
   sf::Vector2f temp = fish.getPosition();
   if (temp.x > window_size_x)
     temp.x = 0;
@@ -59,5 +58,3 @@ void Instance::checkBoundries(Fish& fish) {
     temp.y = window_size_y;
   fish.setPosition(temp);
 }
-
-}  // namespace Simulation

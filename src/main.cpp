@@ -15,7 +15,7 @@ int main() {
   std::uniform_real_distribution<float> dis(0.0f, 1.0f);
 
   // --- Setup ---
-  Simulation::Instance simulation{window_size_x, window_size_y};
+  Simulation simulation{window_size_x, window_size_y};
   simulation.generate(gen, dis, num_of_fish, col_radius, speed, icon_size, dt);
 
   // --- Main Loop ---
