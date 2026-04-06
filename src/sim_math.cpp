@@ -13,9 +13,10 @@ sf::Vector2f SimMath::polarToCortesian(double rad) {
 }
 
 double SimMath::cortesianToPolar(sf::Vector2f vec) {
-    float ang_rad = atan(vec.x / vec.y);
     if(vec.x == 0 || vec.y == 0)
         return 0;
+    
+    float ang_rad = atan(vec.x / vec.y);
 
     if(vec.x > 0 && vec.y > 0) //First Quadrant
         return ang_rad;

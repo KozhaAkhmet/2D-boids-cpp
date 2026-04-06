@@ -16,7 +16,7 @@ int main() {
 
   
   sf::RenderWindow window(sf::VideoMode(window_size_x, window_size_y),
-  "Boids Algorothm");
+  "test_alignment");
   window.setFramerateLimit(max_framerate);
   
   std::vector<sf::Texture> imgmap;
