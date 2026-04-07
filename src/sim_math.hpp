@@ -11,6 +11,6 @@ namespace SimMath {
     void alignment(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes);
     void cohesion(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes);
     void applyModifiedDirection(std::shared_ptr<Fish> fish);
-    std::vector<const Fish*> getCollisions(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes,
+    std::vector<std::shared_ptr<Fish>> getCollisions(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes,
                                              int _col_radius);
 };

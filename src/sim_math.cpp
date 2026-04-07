@@ -35,20 +35,18 @@ void SimMath::updatePosition(std::shared_ptr<Fish> fish) {
     fish->setPosition(temp);
 }
 
-void SimMath::separation(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes) {
+void SimMath::separation(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes_nearby) {
     sf::Vector2f sum = {};
-    std::vector<const Fish*> nearest = getCollisions(fish, fishes, col_radius);
-    for (auto& n : nearest) {
+    for (auto& n : fishes_nearby) {
         sum += fish->getPosition() - n->getPosition();
     }
     fish->setSepVec(sum);
 }
 
-void SimMath::alignment(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes) {
+void SimMath::alignment(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes_nearby) {
     int count{0};
     double sum = 0;
-    std::vector<const Fish*> nearest = getCollisions(fish, fishes, col_radius * 2 / 3);
-    for (auto& n : nearest) {
+    for (auto& n : fishes_nearby) {
         sum += fish->getDirection() - (n->getDirection());
         count++;
     }
@@ -56,11 +54,10 @@ void SimMath::alignment(std::shared_ptr<Fish> fish, const std::vector<std::share
     fish->setAllignAngle(sum);
 }
 
-void SimMath::cohesion(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes) {
+void SimMath::cohesion(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes_nearby) {
     sf::Vector2f sum_vec{};
-    std::vector<const Fish*> nearest = getCollisions(fish, fishes, col_radius * 1 / 3);
-    int size = nearest.size();
-    for (auto& fish : nearest) {
+    int size = fishes_nearby.size();
+    for (auto& fish : fishes_nearby) {
         sum_vec += fish->getPosition();
     }
     sum_vec = sf::Vector2f(sum_vec.x / size, sum_vec.y / size);
@@ -117,14 +114,14 @@ void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
     fish->setRotation(dir* 180 / PI);
 }
 
-std::vector<const Fish*> SimMath::getCollisions(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes,
+std::vector<std::shared_ptr<Fish>> SimMath::getCollisions(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes,
                                              int _col_radius) {
     sf::Vector2f pos = fish->getPosition();
-    std::vector<const Fish*> nearest = {};
+    std::vector<std::shared_ptr<Fish>> nearest = {};
     sf::VertexArray lines(sf::Lines, fishes.size() * 2);
     for (int i = 0; i < fishes.size(); i++) {
-        const Fish* target = fishes.at(i).get();
-        if ((fish.get() != target) &&
+        std::shared_ptr<Fish> target = fishes.at(i);
+        if ((fish != target) &&
             SimMath::getDistance(pos, target->getPosition()) < _col_radius) {
             sf::Vector2f sub_vec = pos - target->getPosition();
 

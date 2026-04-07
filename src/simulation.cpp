@@ -2,6 +2,7 @@
 #include <memory>
 
 #include "simulation.hpp"
+#include "consts.hpp"
 #include "fish.hpp"
 #include "sim_math.hpp"
 
@@ -18,11 +19,12 @@ Simulation::Simulation(int _window_size_x, int _window_size_y)
 
 void Simulation::run(sf::RenderWindow& window){
   for (auto& fish : fishes) {
+    auto fishes_nearby = SimMath::getCollisions(fish, fishes, SimMath::col_radius);
     SimMath::updatePosition(fish);
     checkBoundries(*fish);
-    SimMath::separation(fish, fishes);
-    SimMath::alignment(fish, fishes);
-    SimMath::cohesion(fish, fishes);
+    SimMath::separation(fish, fishes_nearby);
+    SimMath::alignment(fish, fishes_nearby);
+    SimMath::cohesion(fish, fishes_nearby);
     SimMath::applyModifiedDirection(fish);
     window.draw(*fish);
   }
