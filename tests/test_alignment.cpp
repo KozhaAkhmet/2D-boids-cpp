@@ -61,9 +61,13 @@ int main() {
     cursor_ptr->setPosition(worldPos);
 
     dummy_ptr->setDirection(increment_ang++);
-    SimMath::alignment(cursor_ptr, test_fishes);
-    SimMath::applyModifiedDirection(cursor_ptr);
 
+    auto fishes_nearby_dummy = SimMath::getCollisions(dummy_ptr, test_fishes, SimMath::col_radius);
+    auto fishes_nearby_cursor = SimMath::getCollisions(cursor_ptr, test_fishes, SimMath::col_radius);
+    SimMath::alignment(dummy_ptr, fishes_nearby_dummy);
+    SimMath::alignment(cursor_ptr, fishes_nearby_cursor);
+    SimMath::applyModifiedDirection(dummy_ptr);
+    SimMath::applyModifiedDirection(cursor_ptr);
     dummy_ptr->drawCollisionDebug(window);
     cursor_ptr->drawCollisionDebug(window);
     window.draw(*cursor_ptr);

@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <memory>
 
+#include "consts.hpp"
 #include "fish.hpp"
 #include "sim_math.hpp"
 
@@ -16,7 +17,7 @@ int main() {
 
   
   sf::RenderWindow window(sf::VideoMode(window_size_x, window_size_y),
-  "Boids Algorothm");
+  "test_separation");
   window.setFramerateLimit(max_framerate);
   
   std::vector<sf::Texture> imgmap;
@@ -58,9 +59,10 @@ int main() {
     if(worldPos.y<0)
       worldPos.y = 0;
     cursor_ptr->setPosition(worldPos);
-    
-    SimMath::separation(dummy_ptr, test_fishes);
-    SimMath::separation(cursor_ptr, test_fishes);
+    auto fishes_nearby_dummy = SimMath::getCollisions(dummy_ptr, test_fishes, SimMath::col_radius);
+    auto fishes_nearby_cursor = SimMath::getCollisions(cursor_ptr, test_fishes, SimMath::col_radius);
+    SimMath::separation(dummy_ptr, fishes_nearby_dummy);
+    SimMath::separation(cursor_ptr, fishes_nearby_cursor);
     SimMath::applyModifiedDirection(dummy_ptr);
     SimMath::applyModifiedDirection(cursor_ptr);
 

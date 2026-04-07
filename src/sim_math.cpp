@@ -67,50 +67,70 @@ void SimMath::cohesion(std::shared_ptr<Fish> fish, const std::vector<std::shared
 }
 
 void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
-    double distance_divider = fish->getMinDistance();
+    float distance_divider = fish->getMinDistance();
 
-    sf::VertexArray lines(sf::Lines, 2);
-    sf::Vector2f sum_vec = fish->getSepVec();
     sf::Vector2f coh_vec = fish->getCohVec();
     sf::Vector2f fish_pos = fish->getPosition();
     float dir = fish->getDirection();
-    float allign_ang_rad = fish->getAllignAngle();
-
+    
+    const float sep_const = 0.004, allign_const = 0.007, coh_const = 0.006;
+    //------------Seperation----------
+    sf::Vector2f sum_vec = fish->getSepVec();
+    float sep_ang;
     if (sum_vec.x != 0 && sum_vec.y != 0) {
-        const double sep_const = 0.004, allign_const = 0.007, coh_const = 0.006;
-        double sep_ang, evade_ang, sep_rel_ang, positive_sep_ang,
-            positive_sep_rel_ang;
+        float evade_ang, sep_rel_ang, positive_sep_ang,
+        positive_sep_rel_ang;
         sep_ang = -(atan2(sum_vec.x, sum_vec.y));
         positive_sep_ang = sep_ang < 0 ? sep_ang + PI_M_2 : sep_ang;
-
+        
         sep_rel_ang = positive_sep_ang - dir + PI_D_2;
         positive_sep_rel_ang = sep_rel_ang < 0 ? sep_rel_ang + PI_M_2 : sep_rel_ang;
-
+        
         evade_ang = sep_ang + PI_D_2;
         if (positive_sep_rel_ang < PI) dir += sep_const * abs(sep_rel_ang);
         if (positive_sep_rel_ang > PI) dir -= sep_const * abs(sep_rel_ang);
-        if (allign_ang_rad > PI)
-        dir += allign_const * allign_ang_rad;
-        if (allign_ang_rad < PI)
-        dir -= allign_const * allign_ang_rad;
-        double coh_rad, positive_coh_ang, coh_rel_ang, positive_coh_rel_ang;
-        coh_rad = -(atan2(coh_vec.x, coh_vec.y));
-        positive_coh_ang = coh_rad < 0 ? coh_rad + PI_M_2 : coh_rad;
-
-        coh_rel_ang = positive_coh_ang - dir + PI_D_2;
-        positive_coh_rel_ang = coh_rel_ang < 0 ? coh_rel_ang + PI_M_2 : coh_rel_ang;
-        if (positive_coh_rel_ang < PI) dir -= coh_const * abs(coh_rel_ang);
-        if (positive_coh_rel_ang > PI) dir += coh_const * abs(coh_rel_ang);
-
-        lines[0].position = fish_pos;
-        lines[1].position =
-            SimMath::polarToCortesian(sep_ang + PI_D_2) * fish.get()->getCollisionRadius() + fish_pos;
-        lines[1].color = sf::Color::Red;
     }
+
+    sf::VertexArray sep_lines(sf::Lines, 2);
+    sep_lines[0].position = fish_pos;
+    sep_lines[1].position =
+        SimMath::polarToCortesian(sep_ang + PI_D_2) * fish.get()->getCollisionRadius() + fish_pos;
+    sep_lines[1].color = sf::Color::Red;
+
+    //------------Alignment----------
+    float allign_ang_rad = fish->getAllignAngle();
+    if (allign_ang_rad > PI)
+        dir += allign_const * allign_ang_rad;
+    if (allign_ang_rad < PI)
+        dir -= allign_const * allign_ang_rad;
+
+    sf::VertexArray align_lines(sf::Lines, 2);
+    align_lines[0].position = fish_pos;
+    align_lines[1].position =
+        SimMath::polarToCortesian(allign_ang_rad + PI_D_2) * fish.get()->getCollisionRadius() + fish_pos;
+    align_lines[1].color = sf::Color::Green;
+
+    //------------Cohesion----------
+    float coh_rad, positive_coh_ang, coh_rel_ang, positive_coh_rel_ang;
+    coh_rad = -(atan2(coh_vec.x, coh_vec.y));
+    positive_coh_ang = coh_rad < 0 ? coh_rad + PI_M_2 : coh_rad;
+
+    coh_rel_ang = positive_coh_ang - dir + PI_D_2;
+    positive_coh_rel_ang = coh_rel_ang < 0 ? coh_rel_ang + PI_M_2 : coh_rel_ang;
+    if (positive_coh_rel_ang < PI) dir -= coh_const * abs(coh_rel_ang);
+    if (positive_coh_rel_ang > PI) dir += coh_const * abs(coh_rel_ang);
+
+    sf::VertexArray coh_lines(sf::Lines, 2);
+    coh_lines[0].position = fish_pos;
+    coh_lines[1].position =
+        SimMath::polarToCortesian(allign_ang_rad + PI_D_2) * fish.get()->getCollisionRadius() + fish_pos;
+    coh_lines[1].color = sf::Color::Yellow;
+    //------------------------------    
+    
     if (dir < 0) dir += PI_M_2;
     if (PI_M_2 + PI_D_2 / 2 < dir) dir -= PI_M_2;
 
-    fish->setDirLines(lines);
+    fish->setDirLines(sep_lines, align_lines, coh_lines);
     fish->setRotation(dir* 180 / PI);
 }
 
@@ -121,7 +141,7 @@ std::vector<std::shared_ptr<Fish>> SimMath::getCollisions(std::shared_ptr<Fish> 
     sf::VertexArray lines(sf::Lines, fishes.size() * 2);
     for (int i = 0; i < fishes.size(); i++) {
         std::shared_ptr<Fish> target = fishes.at(i);
-        if ((fish != target) &&
+        if ((fish.get() != target.get()) &&
             SimMath::getDistance(pos, target->getPosition()) < _col_radius) {
             sf::Vector2f sub_vec = pos - target->getPosition();
 
@@ -131,7 +151,7 @@ std::vector<std::shared_ptr<Fish>> SimMath::getCollisions(std::shared_ptr<Fish> 
 
             rel_angle = rel_angle > PI_M_2 ? rel_angle - PI_M_2 : rel_angle;
             
-            std::cout << fish->name << " " << nearest.size() <<  " distance " <<  SimMath::getDistance(pos, target->getPosition()) << std::endl;
+            // std::cout << fish->name << " " << nearest.size() <<  " distance " <<  SimMath::getDistance(pos, target->getPosition()) << std::endl;
                 
             if ((PI / 4 < rel_angle && rel_angle < 7 * PI / 4)) {
                 lines[i * 2 + 1].position = pos;

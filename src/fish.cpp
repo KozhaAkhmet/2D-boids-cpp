@@ -20,7 +20,10 @@ void Fish::drawCollisionDebug(sf::RenderWindow& window) {
   drawTrimmedCircle(this->dir);
   window.draw(this->affect_lines);
   window.draw(this->collision_lines);
-  window.draw(this->dir_lines);
+  window.draw(this->sep_lines);
+  window.draw(this->align_lines);
+  window.draw(this->coh_lines);
+  
 }
 
 void Fish::drawTrimmedCircle(float deg_value) {

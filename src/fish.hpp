@@ -21,7 +21,11 @@ public:
      void setSepVec(sf::Vector2f _sep_vec){sep_vec = _sep_vec;};
      void setAllignAngle(float rad){allign_ang_rad = rad;};
      void setVertexLines(sf::VertexArray);
-     void setDirLines(sf::VertexArray arr){dir_lines = arr;};
+     void setDirLines(sf::VertexArray _sep_lines, sf::VertexArray _align_lines, sf::VertexArray _coh_lines){
+          sep_lines = _sep_lines;
+          align_lines = _align_lines;
+          coh_lines = _coh_lines;
+     };
      void setMinDistance(float dis){min_distance = dis;};
      void setAffectLines(sf::VertexArray arr){affect_lines = arr;};
 
@@ -35,7 +39,9 @@ public:
 
      sf::VertexArray collision_lines;
      sf::VertexArray affect_lines;
-     sf::VertexArray dir_lines;
+     sf::VertexArray sep_lines;
+     sf::VertexArray align_lines;
+     sf::VertexArray coh_lines;
 
      ~Fish() {}
 
