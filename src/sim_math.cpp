@@ -5,18 +5,18 @@
 
 float SimMath::getDistance(const sf::Vector2f& a, const sf::Vector2f& b) {
     sf::Vector2f sub = a - b;
-    return sqrt(sub.x * sub.x + sub.y * sub.y);
+    return sqrtf(sub.x * sub.x + sub.y * sub.y);
 }
 
-sf::Vector2f SimMath::polarToCortesian(double rad) {
-    return sf::Vector2f(cos(rad), sin(rad));
+sf::Vector2f SimMath::polarToCortesian(float rad) {
+    return sf::Vector2f(cosf(rad), sinf(rad));
 }
 
-double SimMath::cortesianToPolar(sf::Vector2f vec) {
+float SimMath::cortesianToPolar(sf::Vector2f vec) {
     if(vec.x == 0 || vec.y == 0)
         return 0;
-    
-    float ang_rad = atan(vec.x / vec.y);
+
+    float ang_rad = atanf(vec.x / vec.y);
 
     if(vec.x > 0 && vec.y > 0) //First Quadrant
         return ang_rad;
