@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "consts.hpp"
+#include <SFML/System/Angle.hpp>
+#include <string>
 
 class Fish : public sf::CircleShape {
 public:
@@ -14,7 +15,7 @@ public:
 
      void setDirection(float rad) {
           this->dir += (abs(rad) / rad * this->turn_speed);
-          this->setRotation(this->dir * 180 / SimMath::PI);
+          this->setRotation(sf::radians(this->dir));
      }
      void setCollisionRadius(float col) { this->col_radius = col; }
      void setSpeed(float speed) { this->speed = speed; }

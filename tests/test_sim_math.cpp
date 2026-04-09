@@ -4,6 +4,7 @@
 
 #include "doctest/doctest.h"
 #include "sim_math.hpp"
+#include "consts.hpp"
 
 #define REQUIRE_VECTOR_EQ(v1, v2, eps) \
     REQUIRE_EQ(v1.x, doctest::Approx(v2.x).epsilon(eps)); \

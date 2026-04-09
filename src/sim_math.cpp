@@ -1,5 +1,6 @@
-#include "sim_math.hpp"
+#include <SFML/System/Angle.hpp>
 #include <iostream>
+#include "sim_math.hpp"
 #include "math.h"
 #include "consts.hpp"
 
@@ -91,7 +92,7 @@ void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
         if (positive_sep_rel_ang > PI) dir -= sep_const * abs(sep_rel_ang);
     }
 
-    sf::VertexArray sep_lines(sf::Lines, 2);
+    sf::VertexArray sep_lines(sf::PrimitiveType::LineStrip, 2);
     sep_lines[0].position = fish_pos;
     sep_lines[1].position =
         SimMath::polarToCortesian(sep_ang + PI_D_2) * fish.get()->getCollisionRadius() + fish_pos;
@@ -104,7 +105,7 @@ void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
     if (allign_ang_rad < PI)
         dir -= allign_const * allign_ang_rad;
 
-    sf::VertexArray align_lines(sf::Lines, 2);
+    sf::VertexArray align_lines(sf::PrimitiveType::LineStrip, 2);
     align_lines[0].position = fish_pos;
     align_lines[1].position =
         SimMath::polarToCortesian(allign_ang_rad + PI_D_2) * fish.get()->getCollisionRadius() + fish_pos;
@@ -120,7 +121,7 @@ void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
     if (positive_coh_rel_ang < PI) dir -= coh_const * abs(coh_rel_ang);
     if (positive_coh_rel_ang > PI) dir += coh_const * abs(coh_rel_ang);
 
-    sf::VertexArray coh_lines(sf::Lines, 2);
+    sf::VertexArray coh_lines(sf::PrimitiveType::LineStrip, 2);
     coh_lines[0].position = fish_pos;
     coh_lines[1].position =
         SimMath::polarToCortesian(allign_ang_rad + PI_D_2) * fish.get()->getCollisionRadius() + fish_pos;
@@ -131,14 +132,14 @@ void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
     if (PI_M_2 + PI_D_2 / 2 < dir) dir -= PI_M_2;
 
     fish->setDirLines(sep_lines, align_lines, coh_lines);
-    fish->setRotation(dir* 180 / PI);
+    fish->setRotation(sf::radians(dir));
 }
 
 std::vector<std::shared_ptr<Fish>> SimMath::getCollisions(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes,
                                              int _col_radius) {
     sf::Vector2f pos = fish->getPosition();
     std::vector<std::shared_ptr<Fish>> nearest = {};
-    sf::VertexArray lines(sf::Lines, fishes.size() * 2);
+    sf::VertexArray lines(sf::PrimitiveType::LineStrip, fishes.size() * 2);
     for (int i = 0; i < fishes.size(); i++) {
         std::shared_ptr<Fish> target = fishes.at(i);
         if ((fish.get() != target.get()) &&

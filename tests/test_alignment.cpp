@@ -1,79 +1,81 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Window/Window.hpp>
 #include <filesystem>
 #include <memory>
 
 #include "fish.hpp"
 #include "sim_math.hpp"
+#include "consts.hpp"
 
 int main() {
-  const float col_radius = 100;
-  const int num_of_fish = 200;
-  const int window_size_x = 300;
-  const int window_size_y = 300;
-  const int max_framerate = 20;
-  const float speed = 80.F;
-  const float dt = 0.0069444445F * 4;
+	const float col_radius = 100;
+	const int num_of_fish = 200;
+	const sf::Vector2u window_size(300,300);
+	const int max_framerate = 20;
+	const float speed = 80.F;
+	const float dt = 0.0069444445F * 4;
 
-  
-  sf::RenderWindow window(sf::VideoMode(window_size_x, window_size_y),
-  "test_alignment");
-  window.setFramerateLimit(max_framerate);
-  
-  std::vector<sf::Texture> imgmap;
-  for (const auto& file : std::filesystem::directory_iterator("../res/")) {
-    sf::Texture t;
-    t.loadFromFile(file.path());
-    t.setSmooth(true);
-    t.generateMipmap();
-    imgmap.push_back(t);
-  }
 
-  Fish dummy_fish(col_radius, speed, SimMath::icon_size, SimMath::PI + SimMath::PI_D_2,
-                             dt, window_size_x/2,
-                             window_size_y/2);
+	sf::RenderWindow window(sf::VideoMode(window_size),
+	"test_alignment");
+	window.setFramerateLimit(max_framerate);
 
-  dummy_fish.setTexture(&imgmap[3]);
+	std::vector<sf::Texture> imgmap;
+	for (const auto& file : std::filesystem::directory_iterator(SimMath::fish_icons_dir_path)) {
+		sf::Texture t;
+		t.loadFromFile(file.path());
+		t.setSmooth(true);
+		t.generateMipmap();
+		imgmap.push_back(t);
+	}
 
-  Fish cursorFish(col_radius, speed, SimMath::icon_size, SimMath::PI + SimMath::PI_D_2,
-                             dt, window_size_x/2 - 20,
-                             window_size_y/2);
-  
-  auto dummy_ptr = std::make_shared<Fish>(dummy_fish);
-  auto cursor_ptr = std::make_shared<Fish>(cursorFish);
-  
-  std::vector<std::shared_ptr<Fish>> test_fishes = {dummy_ptr, cursor_ptr};
+	Fish dummy_fish(col_radius, speed, SimMath::icon_size, SimMath::PI + SimMath::PI_D_2,
+								dt, window_size.x/2,
+								window_size.y/2);
 
-  float increment_ang= 1;
-  while (window.isOpen()) {
-    sf::Event event;
-    while (window.pollEvent(event)) {
-      if (event.type == sf::Event::Closed)
-        window.close();
-    }
-    window.clear();
+	dummy_fish.setTexture(&imgmap[3]);
 
-    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-    sf::Vector2f worldPos = window.mapPixelToCoords(mousePos);
-    if(worldPos.x<0)
-      worldPos.x = 0;
-    if(worldPos.y<0)
-      worldPos.y = 0;
-    cursor_ptr->setPosition(worldPos);
+	Fish cursorFish(col_radius, speed, SimMath::icon_size, SimMath::PI + SimMath::PI_D_2,
+								dt, window_size.x/2 - 20,
+								window_size.y/2);
 
-    dummy_ptr->setDirection(increment_ang++);
+	auto dummy_ptr = std::make_shared<Fish>(dummy_fish);
+	auto cursor_ptr = std::make_shared<Fish>(cursorFish);
 
-    auto fishes_nearby_dummy = SimMath::getCollisions(dummy_ptr, test_fishes, SimMath::col_radius);
-    auto fishes_nearby_cursor = SimMath::getCollisions(cursor_ptr, test_fishes, SimMath::col_radius);
-    SimMath::alignment(dummy_ptr, fishes_nearby_dummy);
-    SimMath::alignment(cursor_ptr, fishes_nearby_cursor);
-    SimMath::applyModifiedDirection(dummy_ptr);
-    SimMath::applyModifiedDirection(cursor_ptr);
-    dummy_ptr->drawCollisionDebug(window);
-    cursor_ptr->drawCollisionDebug(window);
-    window.draw(*cursor_ptr);
-    window.draw(*dummy_ptr);
+	std::vector<std::shared_ptr<Fish>> test_fishes = {dummy_ptr, cursor_ptr};
 
-    window.display();
-  }
+	float increment_ang= 1;
+	while (window.isOpen()) {
+		while (const std::optional event = window.pollEvent())
+		{
+			if (event->is<sf::Event::Closed>())
+				window.close();
+		}
+		window.clear();
+
+		sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+		sf::Vector2f worldPos = window.mapPixelToCoords(mousePos);
+		if(worldPos.x<0)
+			worldPos.x = 0;
+		if(worldPos.y<0)
+			worldPos.y = 0;
+		cursor_ptr->setPosition(worldPos);
+
+		dummy_ptr->setDirection(increment_ang++);
+
+		auto fishes_nearby_dummy = SimMath::getCollisions(dummy_ptr, test_fishes, SimMath::col_radius);
+		auto fishes_nearby_cursor = SimMath::getCollisions(cursor_ptr, test_fishes, SimMath::col_radius);
+		SimMath::alignment(dummy_ptr, fishes_nearby_dummy);
+		SimMath::alignment(cursor_ptr, fishes_nearby_cursor);
+		SimMath::applyModifiedDirection(dummy_ptr);
+		SimMath::applyModifiedDirection(cursor_ptr);
+		dummy_ptr->drawCollisionDebug(window);
+		cursor_ptr->drawCollisionDebug(window);
+		window.draw(*cursor_ptr);
+		window.draw(*dummy_ptr);
+
+		window.display();
+	}
   return 0;
 }
