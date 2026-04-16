@@ -14,7 +14,7 @@ Fish::Fish(float _col_radius, float _speed, float _size, float _dir = 0,
     this->setOrigin(sf::Vector2f(_size,_size));
     this->setRadius(_size);
     this->setPosition(sf::Vector2f(_pos_x, _pos_y));
-    this->setDirection(_dir);
+    this->setCummilativeDirection(_dir);
     Fish::count++;
     this->name = "fish_" + std::to_string(count);
 }

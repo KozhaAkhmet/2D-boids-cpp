@@ -46,13 +46,11 @@ void SimMath::separation(std::shared_ptr<Fish> fish, const std::vector<std::shar
 }
 
 void SimMath::alignment(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes_nearby) {
-    int count{0};
-    double sum = 0;
+    double sum = fish->getDirection();
     for (auto& n : fishes_nearby) {
-        sum += fish->getDirection() - (n->getDirection());
-        count++;
+        sum += n->getDirection();
     }
-    sum = sum / count;
+    sum = sum / fishes_nearby.size();
     fish->setAllignAngle(sum);
 }
 
@@ -74,7 +72,7 @@ void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
     sf::Vector2f fish_pos = fish->getPosition();
     float dir = fish->getDirection();
     
-    const float sep_const = 0.004, allign_const = 0.007, coh_const = 0.006;
+    const float sep_const = 0.004, allign_const = 1, coh_const = 0.006;
     //------------Seperation----------
     sf::Vector2f sep_vec = fish->getSepVec();
     float sep_local_ang;
@@ -101,15 +99,12 @@ void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
 
     //------------Alignment----------
     float allign_ang_rad = fish->getAllignAngle();
-    if (allign_ang_rad > PI)
-        dir += allign_const * allign_ang_rad;
-    if (allign_ang_rad < PI)
-        dir -= allign_const * allign_ang_rad;
+    dir += allign_const * allign_ang_rad;
 
     sf::VertexArray align_lines(sf::PrimitiveType::LineStrip, 2);
     align_lines[0].position = fish_pos;
     align_lines[1].position =
-        SimMath::polarToCortesian(allign_ang_rad + PI_D_2) * fish.get()->getCollisionRadius() + fish_pos;
+        SimMath::polarToCortesian(allign_ang_rad) * fish.get()->getCollisionRadius() + fish_pos;
     align_lines[1].color = sf::Color::Green;
 
     //------------Cohesion----------

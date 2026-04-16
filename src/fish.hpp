@@ -13,10 +13,11 @@ public:
      void drawCollisionDebug(sf::RenderWindow& window);
      void drawTrimmedCircle(float deg_value);
 
-     void setDirection(float rad) {
+     void setCummilativeDirection(float rad) {
           this->dir += (abs(rad) / rad * this->turn_speed);
           this->setRotation(sf::radians(this->dir));
      }
+     void setDirection(float rad){this->dir = rad;}
      void setCollisionRadius(float col) { this->col_radius = col; }
      void setSpeed(float speed) { this->speed = speed; }
      void setSepVec(sf::Vector2f _sep_vec){sep_vec = _sep_vec;};

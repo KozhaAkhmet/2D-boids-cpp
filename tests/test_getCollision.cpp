@@ -63,7 +63,7 @@ int main() {
 		SimMath::getCollisions(dummy_ptr, test_fishes, dummy_ptr->getCollisionRadius());
 		dummy_ptr->drawCollisionDebug(window);
 
-		dummy_ptr->setDirection(increment_ang++);
+		dummy_ptr->setCummilativeDirection(increment_ang++);
 		window.draw(*cursor_ptr);
 		window.draw(*dummy_ptr);
 
