@@ -37,7 +37,7 @@ void SimMath::updatePosition(std::shared_ptr<Fish> fish) {
 }
 
 void SimMath::separation(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes_nearby) {
-    sf::Vector2f sum = {};
+    sf::Vector2f sum = {0,0};
     for (auto& n : fishes_nearby) {
         sum += fish->getPosition() - n->getPosition();
     }
@@ -46,24 +46,30 @@ void SimMath::separation(std::shared_ptr<Fish> fish, const std::vector<std::shar
 }
 
 void SimMath::alignment(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes_nearby) {
-    double sum = fish->getDirection();
-    for (auto& n : fishes_nearby) {
-        sum += n->getDirection();
+    if(fishes_nearby.size() > 0){
+        double sum = fish->getDirection();
+        for (auto& n : fishes_nearby) {
+            sum += n->getDirection();
+        }
+        sum = sum / fishes_nearby.size();
+        fish->setAllignAngle(sum);
+    }else {
+        fish->setAllignAngle(0);
     }
-    sum = sum / fishes_nearby.size();
-    fish->setAllignAngle(sum);
 }
 
 void SimMath::cohesion(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes_nearby) {
-    sf::Vector2f sum_vec{};
     int size = fishes_nearby.size();
-    for (auto& fish : fishes_nearby) {
-        sum_vec += fish->getPosition();
-    }
-    sum_vec = sf::Vector2f(sum_vec.x / size, sum_vec.y / size);
+    sf::Vector2f result{0,0};
     if (size > 0) {
-        fish->getCohVec() = fish->getPosition() - sum_vec;
+        sf::Vector2f sum_vec{};
+        for (auto& fish_nearby : fishes_nearby) {
+            sum_vec += fish_nearby->getPosition();
+        }
+        sum_vec = sf::Vector2f(sum_vec.x / size, sum_vec.y / size);
+        result = sum_vec - fish->getPosition();
     }
+    fish->setCohesionVec(result);
 }
 
 void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
@@ -72,12 +78,12 @@ void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
     sf::Vector2f fish_pos = fish->getPosition();
     float dir = fish->getDirection();
     
-    const float sep_const = 0.004, allign_const = 1, coh_const = 0.006;
+    const float sep_const = 0.01, allign_const = 0.01, coh_const = 0.01;
     //------------Seperation----------
     sf::Vector2f sep_vec = fish->getSepVec();
     float sep_local_ang;
     if (sep_vec.x != 0 && sep_vec.y != 0) {
-        float evade_ang, sep_local_dir_ang, sep_ang_relative_neg_y, positive_sep_local_ang;
+        float sep_ang_relative_neg_y;
 
         //The sep_vec is the sum of fish directions.
         //For fish, 0 angle is neg y and sep_ang_relative_neg_y become reletive to negative y.
@@ -108,21 +114,23 @@ void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
     align_lines[1].color = sf::Color::Green;
 
     //------------Cohesion----------
+    //the cohesion vector should pass similar calculations as seperation vector
     sf::Vector2f coh_vec = fish->getCohVec();
-    float coh_rad, positive_coh_ang, coh_rel_ang, positive_coh_rel_ang;
+    float coh_local_ang;
     if(coh_vec.x != 0 && coh_vec.y !=0){
-        coh_rad = -(atan2(coh_vec.x, coh_vec.y));
-        positive_coh_ang = coh_rad < 0 ? coh_rad + PI_M_2 : coh_rad;
+        float coh_ang_relative_neg_y;
+        coh_ang_relative_neg_y = atan2f(coh_vec.x, coh_vec.y);
+        
+        coh_local_ang = dir - coh_ang_relative_neg_y;
 
-        coh_rel_ang = positive_coh_ang - dir + PI_D_2;
-        positive_coh_rel_ang = coh_rel_ang < 0 ? coh_rel_ang + PI_M_2 : coh_rel_ang;
-        if (positive_coh_rel_ang < PI) dir -= coh_const * abs(coh_rel_ang);
-        if (positive_coh_rel_ang > PI) dir += coh_const * abs(coh_rel_ang);
+        coh_local_ang += PI_D_2;
+
+        dir += coh_const * abs(coh_local_ang);
     }
     sf::VertexArray coh_lines(sf::PrimitiveType::LineStrip, 2);
     coh_lines[0].position = fish_pos;
     coh_lines[1].position =
-        SimMath::polarToCortesian(coh_rad + PI_D_2) * fish.get()->getCollisionRadius() + fish_pos;
+        SimMath::polarToCortesian(coh_local_ang) * fish.get()->getCollisionRadius() + fish_pos;
     coh_lines[1].color = sf::Color::Yellow;
     
     //------------------------------    
@@ -142,7 +150,8 @@ std::vector<std::shared_ptr<Fish>> SimMath::getCollisions(std::shared_ptr<Fish> 
     for (int i = 0; i < fishes.size(); i++) {
         std::shared_ptr<Fish> target = fishes.at(i);
         if ((fish.get() != target.get()) &&
-            SimMath::getDistance(pos, target->getPosition()) < _col_radius) {
+            SimMath::getDistance(pos, target->getPosition()) < _col_radius) 
+        {
             sf::Vector2f sub_vec = pos - target->getPosition();
 
             double rad = (fmod(fish->getDirection(), PI_M_2) + PI_D_2) - atan2(sub_vec.x, -sub_vec.y);
@@ -166,8 +175,10 @@ std::vector<std::shared_ptr<Fish>> SimMath::getCollisions(std::shared_ptr<Fish> 
 
                 nearest.emplace_back(target);
             }
+            //TODO bugs with debug lines they appear at 0,0 coordinates
+            fish->setAffectLines(lines);
         }
     }
-    fish->setAffectLines(lines);
+
     return nearest;
 }

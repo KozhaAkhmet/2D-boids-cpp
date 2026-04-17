@@ -1,4 +1,12 @@
 
+add_executable(test-cohesion
+    test_cohesion.cpp
+)
+target_link_libraries(test-cohesion PRIVATE game_lib sfml-graphics sfml-window sfml-system)
+
+add_test(NAME CohesionTest COMMAND test-cohesion)
+
+#-----------------------------------------
 add_executable(test-separation
     test_separation.cpp
 )

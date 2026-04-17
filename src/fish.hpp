@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Angle.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <string>
 
 class Fish : public sf::CircleShape {
@@ -22,6 +23,7 @@ public:
      void setSpeed(float speed) { this->speed = speed; }
      void setSepVec(sf::Vector2f _sep_vec){sep_vec = _sep_vec;};
      void setAllignAngle(float rad){allign_ang_rad = rad;};
+     void setCohesionVec(sf::Vector2f vec){this->coh_vec = vec;};
      void setVertexLines(sf::VertexArray);
      void setDirLines(sf::VertexArray _sep_lines, sf::VertexArray _align_lines, sf::VertexArray _coh_lines){
           sep_lines = _sep_lines;
