@@ -72,7 +72,7 @@ void SimMath::cohesion(std::shared_ptr<Fish> fish, const std::vector<std::shared
 void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
     float distance_divider = fish->getMinDistance();
 
-    std::cout << "##### " <<fish->name << std::endl;
+    // std::cout << "##### " <<fish->name << std::endl;
     sf::Vector2f fish_pos = fish->getPosition();
     float angle = 0;
     float dir = fish->getDirection();
@@ -159,7 +159,7 @@ void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
     
     //------------------------------    
 
-    std::cout << fish->name << " dir "<< dir << " angle " << angle << std::endl;
+    // std::cout << fish->name << " dir "<< dir << " angle " << angle << std::endl;
     fish->setDirLines(sep_lines, align_lines, coh_lines);
     // dir += abs(dir)/dir * fish->getSpeed();
     fish->setCummilativeDirection(angle);

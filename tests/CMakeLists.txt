@@ -46,3 +46,11 @@ target_link_libraries(sim_math-unit-tests PRIVATE doctest::doctest game_lib sfml
 
 add_test(NAME UnitTest COMMAND sim_math-unit-tests)
 
+#--------------------
+
+add_executable(test-boids
+    test_boids.cpp
+)
+target_link_libraries(test-boids PRIVATE game_lib sfml-graphics sfml-window sfml-system)
+
+add_test(NAME BoidsTest COMMAND test-boids)

@@ -22,10 +22,12 @@ void Simulation::run(sf::RenderWindow& window){
 		auto fishes_nearby = SimMath::getCollisions(fish, fishes, SimMath::col_radius);
 		SimMath::updatePosition(fish);
 		checkBoundries(*fish);
-		SimMath::separation(fish, fishes_nearby);
-		SimMath::alignment(fish, fishes_nearby);
-		SimMath::cohesion(fish, fishes_nearby);
-		SimMath::applyModifiedDirection(fish);
+		if(fishes_nearby.size() > 0){
+			SimMath::separation(fish, fishes_nearby);
+			SimMath::alignment(fish, fishes_nearby);
+			SimMath::cohesion(fish, fishes_nearby);
+			SimMath::applyModifiedDirection(fish);
+		}
 		window.draw(*fish);
     }
 }
