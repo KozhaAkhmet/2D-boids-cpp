@@ -2,7 +2,9 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Angle.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <cmath>
 #include <string>
+#include "consts.hpp"
 
 class Fish : public sf::CircleShape {
 public:
@@ -15,14 +17,20 @@ public:
      void drawTrimmedCircle(float deg_value);
 
      void setCummilativeDirection(float rad) {
-          this->dir += (abs(rad) / rad * this->turn_speed);
+          if(rad != 0)
+               this->dir += (abs(rad) / rad * this->turn_speed);
+          this->dir = std::fmod(this->dir, SimMath::PI_M_2); 
           this->setRotation(sf::radians(this->dir));
      }
-     void setDirection(float rad){this->dir = rad;}
+     void setDirection(float rad)
+     {
+          this->dir = rad;
+          this->setRotation(sf::radians(this->dir));
+     }
      void setCollisionRadius(float col) { this->col_radius = col; }
      void setSpeed(float speed) { this->speed = speed; }
      void setSepVec(sf::Vector2f _sep_vec){sep_vec = _sep_vec;};
-     void setAllignAngle(float rad){allign_ang_rad = rad;};
+     void setAlignAngle(float rad){allign_ang_rad = rad;};
      void setCohesionVec(sf::Vector2f vec){this->coh_vec = vec;};
      void setVertexLines(sf::VertexArray);
      void setDirLines(sf::VertexArray _sep_lines, sf::VertexArray _align_lines, sf::VertexArray _coh_lines){
@@ -37,7 +45,7 @@ public:
      float getCollisionRadius() { return col_radius; }
      float getSpeed(){return speed;};
      float getMinDistance(){return min_distance;};
-     float getAllignAngle(){return allign_ang_rad;};
+     float getAlignAngle(){return allign_ang_rad;};
      sf::Vector2f getSepVec(){return sep_vec;};
      sf::Vector2f getCohVec(){return coh_vec;};
 

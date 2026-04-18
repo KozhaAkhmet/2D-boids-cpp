@@ -28,7 +28,7 @@ int main() {
 	imgmap.push_back(t);
 	}
 
-	Fish dummy_fish(col_radius, speed, SimMath::icon_size, SimMath::PI + SimMath::PI_D_2,
+	Fish dummy_fish(col_radius, speed, SimMath::icon_size, 0.0001 + SimMath::PI_D_4,
 								dt, window_size.x/2,
 								window_size.y/2);
 
@@ -62,8 +62,10 @@ int main() {
 		auto fishes_nearby_cursor = SimMath::getCollisions(cursor_ptr, test_fishes, SimMath::col_radius);
 		SimMath::separation(dummy_ptr, fishes_nearby_dummy);
 		SimMath::separation(cursor_ptr, fishes_nearby_cursor);
-		SimMath::applyModifiedDirection(dummy_ptr);
-		SimMath::applyModifiedDirection(cursor_ptr);
+		if(fishes_nearby_dummy.size() > 0)
+			SimMath::applyModifiedDirection(dummy_ptr);
+		if(fishes_nearby_cursor.size() > 0)
+			SimMath::applyModifiedDirection(cursor_ptr);
 
 		dummy_ptr->drawCollisionDebug(window);
 		cursor_ptr->drawCollisionDebug(window);

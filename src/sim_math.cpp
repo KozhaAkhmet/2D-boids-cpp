@@ -1,5 +1,9 @@
 #include <SFML/System/Angle.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <cmath>
+#include <cstdlib>
 #include <iostream>
+#include <ostream>
 #include "sim_math.hpp"
 #include "math.h"
 #include "consts.hpp"
@@ -14,17 +18,11 @@ sf::Vector2f SimMath::polarToCortesian(float rad) {
 }
 
 float SimMath::cortesianToPolar(sf::Vector2f vec) {
-    if(vec.x == 0 || vec.y == 0)
+    //The cartesian plane is with negative y;
+    float rad = atan2f(vec.y, vec.x);
+    if (vec.x == 0 && vec.y == 0)
         return 0;
-
-    float ang_rad = atanf(vec.x / vec.y);
-
-    if(vec.x > 0 && vec.y > 0) //First Quadrant
-        return ang_rad;
-    else if(vec.x > 0 && vec.y < 0) //Fourth Quadrant
-        return ang_rad + PI_M_2;
-    else 
-        return ang_rad + PI; //Second and Third are the same 
+    return rad < 0 ? rad + PI_M_2 : rad;
 }
 
 void SimMath::updatePosition(std::shared_ptr<Fish> fish) {
@@ -39,22 +37,21 @@ void SimMath::updatePosition(std::shared_ptr<Fish> fish) {
 void SimMath::separation(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes_nearby) {
     sf::Vector2f sum = {0,0};
     for (auto& n : fishes_nearby) {
-        sum += fish->getPosition() - n->getPosition();
+        sum += (fish->getPosition() - n->getPosition())/n->getMinDistance();
     }
-    std::cout << sum.x << " " << sum.y << std::endl;
     fish->setSepVec(sum);
 }
 
 void SimMath::alignment(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes_nearby) {
     if(fishes_nearby.size() > 0){
-        double sum = fish->getDirection();
+        double sum {0};
         for (auto& n : fishes_nearby) {
             sum += n->getDirection();
         }
         sum = sum / fishes_nearby.size();
-        fish->setAllignAngle(sum);
+        fish->setAlignAngle(sum);
     }else {
-        fish->setAllignAngle(0);
+        fish->setAlignAngle(0);
     }
 }
 
@@ -75,71 +72,97 @@ void SimMath::cohesion(std::shared_ptr<Fish> fish, const std::vector<std::shared
 void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
     float distance_divider = fish->getMinDistance();
 
+    std::cout << "##### " <<fish->name << std::endl;
     sf::Vector2f fish_pos = fish->getPosition();
+    float angle = 0;
     float dir = fish->getDirection();
-    
-    const float sep_const = 0.01, allign_const = 0.01, coh_const = 0.01;
+
+    const float sep_const = 0.5, align_const = 0.5, coh_const = 0.5;
     //------------Seperation----------
     sf::Vector2f sep_vec = fish->getSepVec();
-    float sep_local_ang;
-    if (sep_vec.x != 0 && sep_vec.y != 0) {
-        float sep_ang_relative_neg_y;
-
+    float sep_ang;
+    {
+        float sep_local_ang;
+        float sep_local_ang_dir;
         //The sep_vec is the sum of fish directions.
-        //For fish, 0 angle is neg y and sep_ang_relative_neg_y become reletive to negative y.
-        sep_ang_relative_neg_y = atan2f(sep_vec.x,sep_vec.y);
-        
-        //the sep_ang_relative_neg_y and dir are already directional (they can be negative).
-        sep_local_ang = dir - sep_ang_relative_neg_y;
+        //sfml uses cordinate system with inverted y axis, adding "-" to y axis to shift into regular coordinate system.
+        sep_ang = cortesianToPolar(sf::Vector2f(sep_vec.x, -sep_vec.y));
 
-        sep_local_ang += PI; // The ang should be at opposite side
+        //converting sep_and to local. Adding PI to avoid angle, if removed it will steer towards it.
+        sep_local_ang = sep_ang + dir + PI;
 
-        dir += sep_const * sep_local_ang;
+        //pass to mode if the value is too big
+        sep_local_ang = std::fmod(sep_local_ang, PI_M_2);
+
+        //calculate the directional angle to make calcs easier 
+        sep_local_ang_dir = sep_local_ang > PI ? sep_local_ang - PI_M_2: sep_local_ang;
+
+        angle += sep_const * sep_local_ang_dir;
     }
-
     sf::VertexArray sep_lines(sf::PrimitiveType::LineStrip, 2);
     sep_lines[0].position = fish_pos;
+    //sfml uses cordinate system with inverted y axis, therefore adding "-" to sep_ang
     sep_lines[1].position =
-        SimMath::polarToCortesian(sep_local_ang) * fish.get()->getCollisionRadius() + fish_pos;
+        SimMath::polarToCortesian(-sep_ang) * fish.get()->getCollisionRadius() + fish_pos;
     sep_lines[1].color = sf::Color::Red;
 
     //------------Alignment----------
-    float allign_ang_rad = fish->getAllignAngle();
-    dir += allign_const * allign_ang_rad;
+    float align_ang = fish->getAlignAngle();
+    {
+        float align_local_ang;
+        float align_local_ang_dir;
+        align_local_ang = align_ang + dir;
 
+        //pass to mode if the value is too big
+        align_local_ang = std::fmod(align_local_ang, PI_M_2);
+
+        //calculate the directional angle to make calcs easier 
+        align_local_ang_dir = align_local_ang > PI ? align_local_ang - PI_M_2: align_local_ang;
+
+        angle += align_const * align_local_ang_dir;
+    }
     sf::VertexArray align_lines(sf::PrimitiveType::LineStrip, 2);
     align_lines[0].position = fish_pos;
+    //the alignment ang is calcualted using sfml coordinate system no need to add "-" sign.
     align_lines[1].position =
-        SimMath::polarToCortesian(allign_ang_rad) * fish.get()->getCollisionRadius() + fish_pos;
+        SimMath::polarToCortesian(align_ang) * fish.get()->getCollisionRadius() + fish_pos;
     align_lines[1].color = sf::Color::Green;
 
     //------------Cohesion----------
     //the cohesion vector should pass similar calculations as seperation vector
     sf::Vector2f coh_vec = fish->getCohVec();
-    float coh_local_ang;
-    if(coh_vec.x != 0 && coh_vec.y !=0){
+    float coh_ang;
+    {
         float coh_ang_relative_neg_y;
-        coh_ang_relative_neg_y = atan2f(coh_vec.x, coh_vec.y);
-        
-        coh_local_ang = dir - coh_ang_relative_neg_y;
+        float coh_local_ang;
+        //The sep_vec is the sum of fish directions.
+        //sfml uses cordinate system with inverted y axis, adding "-" to y axis to shift into regular coordinate system.
+        coh_ang = cortesianToPolar(sf::Vector2f(coh_vec.x, -coh_vec.y));
 
-        coh_local_ang += PI_D_2;
+        //converting sep_and to local. Adding PI to avoid angle, if removed it will steer towards it.
+        coh_local_ang = coh_ang + dir + PI;
 
-        dir += coh_const * abs(coh_local_ang);
+        //pass to mode if the value is too big
+        coh_local_ang = std::fmod(coh_local_ang, PI_M_2);
+
+        //calculate the directional angle to make calcs easier 
+        coh_ang_relative_neg_y = coh_local_ang > PI ? coh_local_ang - PI_M_2: coh_local_ang;
+
+        angle += sep_const * coh_ang_relative_neg_y;
     }
     sf::VertexArray coh_lines(sf::PrimitiveType::LineStrip, 2);
     coh_lines[0].position = fish_pos;
+    //sfml uses cordinate system with inverted y axis, therefore adding "-" to coh_ang
     coh_lines[1].position =
-        SimMath::polarToCortesian(coh_local_ang) * fish.get()->getCollisionRadius() + fish_pos;
+        SimMath::polarToCortesian(-coh_ang) * fish.get()->getCollisionRadius() + fish_pos;
     coh_lines[1].color = sf::Color::Yellow;
     
     //------------------------------    
-    
-    if (dir < 0) dir += PI_M_2;
-    if (PI_M_2 + PI_D_2 / 2 < dir) dir -= PI_M_2;
 
+    std::cout << fish->name << " dir "<< dir << " angle " << angle << std::endl;
     fish->setDirLines(sep_lines, align_lines, coh_lines);
-    fish->setRotation(sf::radians(dir));
+    // dir += abs(dir)/dir * fish->getSpeed();
+    fish->setCummilativeDirection(angle);
 }
 
 std::vector<std::shared_ptr<Fish>> SimMath::getCollisions(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes,
@@ -153,7 +176,7 @@ std::vector<std::shared_ptr<Fish>> SimMath::getCollisions(std::shared_ptr<Fish> 
             SimMath::getDistance(pos, target->getPosition()) < _col_radius) 
         {
             sf::Vector2f sub_vec = pos - target->getPosition();
-
+            //TODO rewrite these lines, correct the nameings and simplify algorithm
             double rad = (fmod(fish->getDirection(), PI_M_2) + PI_D_2) - atan2(sub_vec.x, -sub_vec.y);
 
             double rel_angle = rad < 0 ? rad + PI_M_2 : rad;
