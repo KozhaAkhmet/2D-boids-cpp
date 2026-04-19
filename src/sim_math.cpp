@@ -37,7 +37,7 @@ void SimMath::updatePosition(std::shared_ptr<Fish> fish) {
 void SimMath::separation(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes_nearby) {
     sf::Vector2f sum = {0,0};
     for (auto& n : fishes_nearby) {
-        sum += (fish->getPosition() - n->getPosition())/n->getMinDistance();
+        sum += (fish->getPosition() - n->getPosition())/fish->getMinDistance();
     }
     fish->setSepVec(sum);
 }
@@ -50,7 +50,7 @@ void SimMath::alignment(std::shared_ptr<Fish> fish, const std::vector<std::share
         }
         sum = sum / fishes_nearby.size();
         fish->setAlignAngle(sum);
-    }else {
+    }else{
         fish->setAlignAngle(0);
     }
 }
@@ -72,12 +72,12 @@ void SimMath::cohesion(std::shared_ptr<Fish> fish, const std::vector<std::shared
 void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
     float distance_divider = fish->getMinDistance();
 
-    // std::cout << "##### " <<fish->name << std::endl;
+    // std::cout << "##### " << std::endl << fish->name << std::endl;
     sf::Vector2f fish_pos = fish->getPosition();
     float angle = 0;
     float dir = fish->getDirection();
 
-    const float sep_const = 0.5, align_const = 0.5, coh_const = 0.5;
+    const float sep_const = 1, align_const = 1, coh_const = 1;
     //------------Seperation----------
     sf::Vector2f sep_vec = fish->getSepVec();
     float sep_ang;
@@ -91,10 +91,10 @@ void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
         //converting sep_and to local. Adding PI to avoid angle, if removed it will steer towards it.
         sep_local_ang = sep_ang + dir + PI;
 
-        //pass to mode if the value is too big
+        //after sum the angle can become too big
         sep_local_ang = std::fmod(sep_local_ang, PI_M_2);
 
-        //calculate the directional angle to make calcs easier 
+        //converting to directional angle 
         sep_local_ang_dir = sep_local_ang > PI ? sep_local_ang - PI_M_2: sep_local_ang;
 
         angle += sep_const * sep_local_ang_dir;
@@ -107,16 +107,17 @@ void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
     sep_lines[1].color = sf::Color::Red;
 
     //------------Alignment----------
-    float align_ang = fish->getAlignAngle();
+    //The angle has to be inverted. Not figured out yet but gives correct results on tests
+    float align_ang = PI_M_2 - fish->getAlignAngle();
     {
         float align_local_ang;
         float align_local_ang_dir;
-        align_local_ang = align_ang + dir;
+        align_local_ang = align_ang + dir + PI;
 
-        //pass to mode if the value is too big
+        //after sum the angle can become too big
         align_local_ang = std::fmod(align_local_ang, PI_M_2);
 
-        //calculate the directional angle to make calcs easier 
+        //converting to directional angle  
         align_local_ang_dir = align_local_ang > PI ? align_local_ang - PI_M_2: align_local_ang;
 
         angle += align_const * align_local_ang_dir;
@@ -125,7 +126,7 @@ void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
     align_lines[0].position = fish_pos;
     //the alignment ang is calcualted using sfml coordinate system no need to add "-" sign.
     align_lines[1].position =
-        SimMath::polarToCortesian(align_ang) * fish.get()->getCollisionRadius() + fish_pos;
+        SimMath::polarToCortesian(-align_ang) * fish.get()->getCollisionRadius() + fish_pos;
     align_lines[1].color = sf::Color::Green;
 
     //------------Cohesion----------
@@ -133,7 +134,7 @@ void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
     sf::Vector2f coh_vec = fish->getCohVec();
     float coh_ang;
     {
-        float coh_ang_relative_neg_y;
+        float coh_local_ang_dir;
         float coh_local_ang;
         //The sep_vec is the sum of fish directions.
         //sfml uses cordinate system with inverted y axis, adding "-" to y axis to shift into regular coordinate system.
@@ -142,13 +143,13 @@ void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
         //converting sep_and to local. Adding PI to avoid angle, if removed it will steer towards it.
         coh_local_ang = coh_ang + dir + PI;
 
-        //pass to mode if the value is too big
+        //after sum the angle can become too big
         coh_local_ang = std::fmod(coh_local_ang, PI_M_2);
 
-        //calculate the directional angle to make calcs easier 
-        coh_ang_relative_neg_y = coh_local_ang > PI ? coh_local_ang - PI_M_2: coh_local_ang;
+        //converting to directional angle  
+        coh_local_ang_dir = coh_local_ang > PI ? coh_local_ang - PI_M_2: coh_local_ang;
 
-        angle += sep_const * coh_ang_relative_neg_y;
+        angle += coh_const * coh_local_ang_dir;
     }
     sf::VertexArray coh_lines(sf::PrimitiveType::LineStrip, 2);
     coh_lines[0].position = fish_pos;
@@ -158,10 +159,10 @@ void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
     coh_lines[1].color = sf::Color::Yellow;
     
     //------------------------------    
-
-    // std::cout << fish->name << " dir "<< dir << " angle " << angle << std::endl;
+    angle = fmod(angle, PI);
+    // std::cout << " sep " << sep_ang << " align " << align_ang << " coh " << coh_ang ;
+    // std::cout << " dir "<< dir << " angle " << angle << std::endl;
     fish->setDirLines(sep_lines, align_lines, coh_lines);
-    // dir += abs(dir)/dir * fish->getSpeed();
     fish->setCummilativeDirection(angle);
 }
 
@@ -199,9 +200,9 @@ std::vector<std::shared_ptr<Fish>> SimMath::getCollisions(std::shared_ptr<Fish> 
                 nearest.emplace_back(target);
             }
             //TODO bugs with debug lines they appear at 0,0 coordinates
-            fish->setAffectLines(lines);
         }
     }
+    fish->setAffectLines(lines);
 
     return nearest;
 }
