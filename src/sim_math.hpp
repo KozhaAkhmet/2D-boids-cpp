@@ -10,6 +10,10 @@ namespace SimMath {
     void separation(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes);
     void alignment(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes);
     void cohesion(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes);
+    float applySeperation(std::shared_ptr<Fish> fish);
+    float applyAlignment(std::shared_ptr<Fish> fish);
+    float applyCohesion(std::shared_ptr<Fish> fish);
+    float angleToDirectionalLocalAngle(float ang_rad, float fish_dir);
     void applyModifiedDirection(std::shared_ptr<Fish> fish);
     std::vector<std::shared_ptr<Fish>> getCollisions(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes, int _col_radius);
 };

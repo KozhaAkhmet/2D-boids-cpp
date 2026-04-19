@@ -16,4 +16,8 @@ namespace SimMath {
     constexpr float PI_D_4 = PI / 4;
     
     constexpr float dt = 0.0069444F * 4;
+
+    const float sep_const   = 1;
+    const float align_const = 1;
+    const float coh_const   = 1;
 }
