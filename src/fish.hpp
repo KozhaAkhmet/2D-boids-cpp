@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/VertexArray.hpp>
 #include <SFML/System/Angle.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <cmath>
@@ -13,11 +14,9 @@ public:
      Fish() {};
      Fish(float _col_radius, float _speed, float _size, float _dir, float _dt,
           float _pos_x, float _pos_y);
-     void drawCollisionDebug(sf::RenderWindow& window);
-     void drawTrimmedCircle(float deg_value);
-
-     void setCummilativeDirection(float rad) {
-          if(rad != 0)
+          
+          void setCumulativeDirection(float rad) {
+               if(rad != 0)
                this->dir += (abs(rad) / rad * this->turn_speed);
           this->dir = std::fmod(this->dir, SimMath::PI_M_2); 
           this->setRotation(sf::radians(this->dir));
@@ -32,14 +31,21 @@ public:
      void setSepVec(sf::Vector2f _sep_vec){sep_vec = _sep_vec;};
      void setAlignAngle(float rad){allign_ang_rad = rad;};
      void setCohesionVec(sf::Vector2f vec){this->coh_vec = vec;};
-     void setVertexLines(sf::VertexArray);
-     void setDirLines(sf::VertexArray _sep_lines, sf::VertexArray _align_lines, sf::VertexArray _coh_lines){
-          sep_lines = _sep_lines;
-          align_lines = _align_lines;
-          coh_lines = _coh_lines;
-     };
+     #ifdef DEBUG  
+          void drawCollisionDebug(sf::RenderWindow& window);
+          void drawTrimmedCircle(float deg_value);
+          void setDirLines(sf::VertexArray _sep_lines, sf::VertexArray _align_lines, sf::VertexArray _coh_lines){
+               sep_lines = _sep_lines;
+               align_lines = _align_lines;
+               coh_lines = _coh_lines;
+          };
+          void setSepDirLines(sf::VertexArray _sep_lines){sep_lines = _sep_lines;};
+          void setAlignDirLines(sf::VertexArray _align_lines){align_lines = _align_lines;};
+          void setCohDirLines(sf::VertexArray _coh_lines){coh_lines = _coh_lines;};
+          void setAffectLines(sf::VertexArray arr){affect_lines = arr;};
+     #endif
+
      void setMinDistance(float dis){min_distance = dis;};
-     void setAffectLines(sf::VertexArray arr){affect_lines = arr;};
 
      float getDirection() const { return this->dir; }
      float getCollisionRadius() { return col_radius; }
@@ -49,11 +55,13 @@ public:
      sf::Vector2f getSepVec(){return sep_vec;};
      sf::Vector2f getCohVec(){return coh_vec;};
 
-     sf::VertexArray collision_lines;
-     sf::VertexArray affect_lines;
-     sf::VertexArray sep_lines;
-     sf::VertexArray align_lines;
-     sf::VertexArray coh_lines;
+     #ifdef DEBUG
+          sf::VertexArray collision_lines;
+          sf::VertexArray affect_lines;
+          sf::VertexArray sep_lines;
+          sf::VertexArray align_lines;
+          sf::VertexArray coh_lines;
+     #endif
 
      ~Fish() {}
 

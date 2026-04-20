@@ -91,13 +91,15 @@ float SimMath::applySeperation(std::shared_ptr<Fish> fish){
     //sfml uses cordinate system with inverted y axis, adding "-" to y axis to shift into regular coordinate system.
     float sep_ang = cortesianToPolar(sf::Vector2f(sep_vec.x, -sep_vec.y));
     
-    sf::Vector2f fish_pos = fish->getPosition();
-    sf::VertexArray sep_lines(sf::PrimitiveType::LineStrip, 2);
-    sep_lines[0].position = fish_pos;
-    //sfml uses cordinate system with inverted y axis, therefore adding "-" to sep_ang
-    sep_lines[1].position = SimMath::polarToCortesian(-sep_ang) * fish.get()->getCollisionRadius() + fish_pos;
-    sep_lines[1].color = sf::Color::Red;
-    
+    #ifdef DEBUG
+        sf::Vector2f fish_pos = fish->getPosition();
+        sf::VertexArray sep_lines(sf::PrimitiveType::LineStrip, 2);
+        sep_lines[0].position = fish_pos;
+        //sfml uses cordinate system with inverted y axis, therefore adding "-" to sep_ang
+        sep_lines[1].position = SimMath::polarToCortesian(-sep_ang) * fish.get()->getCollisionRadius() + fish_pos;
+        sep_lines[1].color = sf::Color::Red;
+        fish->setSepDirLines(sep_lines);
+    #endif
     //converting sep_and to local. Adding PI to avoid angle, if removed it will steer towards it.
     return sep_const * angleToDirectionalLocalAngle(sep_ang + PI, dir);
 }
@@ -107,14 +109,16 @@ float SimMath::applyAlignment(std::shared_ptr<Fish> fish){
     float dir = fish->getDirection();
     //The angle has to be inverted. Not figured out yet but gives correct results on tests
     float align_ang = PI_M_2 - fish->getAlignAngle();
-    
-    sf::Vector2f fish_pos = fish->getPosition();
-    sf::VertexArray align_lines(sf::PrimitiveType::LineStrip, 2);
-    align_lines[0].position = fish_pos;
-    //the alignment ang is calcualted using sfml coordinate system no need to add "-" sign.
-    align_lines[1].position = SimMath::polarToCortesian(-align_ang) * fish.get()->getCollisionRadius() + fish_pos;
-    align_lines[1].color = sf::Color::Green;
-    
+
+    #ifdef DEBUG
+        sf::Vector2f fish_pos = fish->getPosition();
+        sf::VertexArray align_lines(sf::PrimitiveType::LineStrip, 2);
+        align_lines[0].position = fish_pos;
+        //the alignment ang is calcualted using sfml coordinate system no need to add "-" sign.
+        align_lines[1].position = SimMath::polarToCortesian(-align_ang) * fish.get()->getCollisionRadius() + fish_pos;
+        align_lines[1].color = sf::Color::Green;
+        fish->setAlignDirLines(align_lines);
+    #endif
     return align_const * angleToDirectionalLocalAngle(align_ang + PI, dir);
 }
 
@@ -126,14 +130,16 @@ float SimMath::applyCohesion(std::shared_ptr<Fish> fish){
     //sfml uses cordinate system with inverted y axis, adding "-" to y axis to shift into regular coordinate system.
     float coh_ang = cortesianToPolar(sf::Vector2f(coh_vec.x, -coh_vec.y));
 
-    sf::Vector2f fish_pos = fish->getPosition();
-    sf::VertexArray coh_lines(sf::PrimitiveType::LineStrip, 2);
-    coh_lines[0].position = fish_pos;
-    //sfml uses cordinate system with inverted y axis, therefore adding "-" to coh_ang
-    coh_lines[1].position =
-        SimMath::polarToCortesian(-coh_ang) * fish.get()->getCollisionRadius() + fish_pos;
-    coh_lines[1].color = sf::Color::Yellow;
-    
+    #ifdef DEBUG
+        sf::Vector2f fish_pos = fish->getPosition();
+        sf::VertexArray coh_lines(sf::PrimitiveType::LineStrip, 2);
+        coh_lines[0].position = fish_pos;
+        //sfml uses cordinate system with inverted y axis, therefore adding "-" to coh_ang
+        coh_lines[1].position =
+            SimMath::polarToCortesian(-coh_ang) * fish.get()->getCollisionRadius() + fish_pos;
+        coh_lines[1].color = sf::Color::Yellow;
+        fish->setCohDirLines(coh_lines);
+    #endif
     //converting sep_and to local. Adding PI to avoid angle, if removed it will steer towards it.
     return coh_const * angleToDirectionalLocalAngle(coh_ang + PI, dir);
 }
@@ -148,14 +154,16 @@ void SimMath::applyModifiedDirection(std::shared_ptr<Fish> fish) {
 
     angle = fmod(angle, PI);
 
-    fish->setCummilativeDirection(angle);
+    fish->setCumulativeDirection(angle);
 }
 
 std::vector<std::shared_ptr<Fish>> SimMath::getCollisions(std::shared_ptr<Fish> fish, const std::vector<std::shared_ptr<Fish>> fishes,
                                              int _col_radius) {
     sf::Vector2f pos = fish->getPosition();
     std::vector<std::shared_ptr<Fish>> nearest = {};
-    sf::VertexArray lines(sf::PrimitiveType::LineStrip, fishes.size() * 2);
+    #ifdef DEBUG
+        sf::VertexArray lines(sf::PrimitiveType::LineStrip, fishes.size() * 2);
+    #endif
     for (int i = 0; i < fishes.size(); i++) {
         std::shared_ptr<Fish> target = fishes.at(i);
         if ((fish.get() != target.get()) &&
@@ -172,9 +180,11 @@ std::vector<std::shared_ptr<Fish>> SimMath::getCollisions(std::shared_ptr<Fish> 
             // std::cout << fish->name << " " << nearest.size() <<  " distance " <<  SimMath::getDistance(pos, target->getPosition()) << std::endl;
                 
             if ((PI / 4 < rel_angle && rel_angle < 7 * PI / 4)) {
-                lines[i * 2 + 1].position = pos;
-                lines[i * 2 + 1].color = sf::Color::Black;
-                lines[i * 2].position = target->getPosition();
+                #ifdef DEBUG
+                    lines[i * 2 + 1].position = pos;
+                    lines[i * 2 + 1].color = sf::Color::Black;
+                    lines[i * 2].position = target->getPosition();
+                #endif
 
                 float distance_to_target =
                     SimMath::getDistance(pos, target->getPosition());
@@ -187,7 +197,9 @@ std::vector<std::shared_ptr<Fish>> SimMath::getCollisions(std::shared_ptr<Fish> 
             //TODO bugs with debug lines they appear at 0,0 coordinates
         }
     }
-    fish->setAffectLines(lines);
+    #ifdef DEBUG
+        fish->setAffectLines(lines);
+    #endif
 
     return nearest;
 }

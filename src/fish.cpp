@@ -14,11 +14,11 @@ Fish::Fish(float _col_radius, float _speed, float _size, float _dir = 0,
     this->setOrigin(sf::Vector2f(_size,_size));
     this->setRadius(_size);
     this->setPosition(sf::Vector2f(_pos_x, _pos_y));
-    this->setCummilativeDirection(_dir);
+    this->setCumulativeDirection(_dir);
     Fish::count++;
     this->name = "fish_" + std::to_string(count);
 }
-
+#ifdef DEBUG
 void Fish::drawCollisionDebug(sf::RenderWindow& window) {
     drawTrimmedCircle(this->dir);
     window.draw(this->affect_lines);
@@ -53,5 +53,5 @@ void Fish::drawTrimmedCircle(float deg_value) {
     lines[resolution + 2].position = init_pos;
     this->collision_lines = lines;
 }
-
+#endif
 

@@ -6,39 +6,22 @@ Boids is an artificial life program, developed by Craig Reynolds in 1986, which 
 ## Model details
 As with most artificial life simulations, Boids is an example of emergent behavior; that is, the complexity of Boids arises from the interaction of individual agents (the boids, in this case) adhering to a set of simple rules. The rules applied in the simplest Boids world are as follows:
 
-**separation**: steer to avoid crowding local flockmates
-**alignment**: steer towards the average heading of local flockmates
-**cohesion**: steer to move towards the average position (center of mass) of local 
+- **separation**: steer to avoid crowding local flockmates
+- **alignment**: steer towards the average heading of local flockmates
+- **cohesion**: steer to move towards the average position (center of mass) of local 
 
 (Reference: https://en.wikipedia.org/wiki/Boids)
 
-## Notes and Bugs
+## Updates: 05.12.2024
+The boids and algorithm is not working correctly. Somewhat after moving to classes project become too bugged. Below are the known bugs yet to be solved. 
+    In any case, this state o project is now in releses as Stable v1. 
+### Notes and Bugs
+- Bug: There is a bug with the direction variable in fish class which is not doing a full circle instead it does with extra 45 degrees.
+- Note: The fishes has a constant speed and the algorithm is based on the direction. The boid algorithm is not completely correct as it should been focused on the velocity vector.
 
-- The fishes has a constant speed and the algorithm is based on the direction. So the boid algorithm that is implemented is not completely correct as it should been focused on the velocity vector.
-- There is a bug with the direction variable in fish class which is not doing a full circle instead it does with extra 45 degrees.
-  
-## Compile Requirements
+## Update: 20.04.2026
+After 2 years I decided to rewrite this project. Solved many bugs and did optimizations. The state before was partily working but VERY hard to understand, so I fixed the entire codebase and made it readable. Also, added manuel and unit tests to be sure the calculations works correctly. I tried to keep the best practices and hope it affected the result.
 
-- g++
-- sfml
+The velocity vector is not incuded yet. Currectly he project relies on constant speed. Next time, I will be working on that.
 
-```bash
-
-$ sudo apt-get install g++ libsfml-dev
-
-```
-
-for other sfml installations: https://www.sfml-dev.org/tutorials/2.6/start-linux.php
-
-## Compile 
-
-```bash
-
-$ make
-```
-or 
-
-```bash
-
-$ g++ main.cpp fish.cpp fish.hpp -o sfml-app -lsfml-graphics -lsfml-window -lsfml-system
-```
+TODO add before-after performance table 

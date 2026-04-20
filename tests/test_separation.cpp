@@ -67,8 +67,10 @@ int main() {
 		if(fishes_nearby_cursor.size() > 0)
 			SimMath::applyModifiedDirection(cursor_ptr);
 
-		dummy_ptr->drawCollisionDebug(window);
-		cursor_ptr->drawCollisionDebug(window);
+		#ifdef DEBUG
+			dummy_ptr->drawCollisionDebug(window);
+			cursor_ptr->drawCollisionDebug(window);
+		#endif
 		window.draw(*cursor_ptr);
 		window.draw(*dummy_ptr);
 
