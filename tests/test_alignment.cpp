@@ -87,7 +87,7 @@ int main() {
 		SimMath::applyModifiedDirection(dummy_ptr);
 		SimMath::applyModifiedDirection(cursor_ptr);
 		SimMath::applyModifiedDirection(dummy_ptr2);
-		#ifdef DEBUG
+		#ifndef NDEBUG
 			dummy_ptr->drawCollisionDebug(window);
 			dummy_ptr2->drawCollisionDebug(window);
 			cursor_ptr->drawCollisionDebug(window);

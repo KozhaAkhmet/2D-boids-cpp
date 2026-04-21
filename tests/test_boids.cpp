@@ -102,7 +102,7 @@ int main() {
 					<< "Fishes nearby dummy2" << fishes_nearby_dummy2.size() << std::endl;
 
 
-		#ifdef DEBUG
+		#ifndef NDEBUG
 			dummy_ptr->drawCollisionDebug(window);
 			dummy_ptr2->drawCollisionDebug(window);
 			cursor_ptr->drawCollisionDebug(window);

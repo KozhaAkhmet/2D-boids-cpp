@@ -91,7 +91,7 @@ float SimMath::applySeperation(std::shared_ptr<Fish> fish){
     //sfml uses cordinate system with inverted y axis, adding "-" to y axis to shift into regular coordinate system.
     float sep_ang = cortesianToPolar(sf::Vector2f(sep_vec.x, -sep_vec.y));
     
-    #ifdef DEBUG
+    #ifndef NDEBUG
         sf::Vector2f fish_pos = fish->getPosition();
         sf::VertexArray sep_lines(sf::PrimitiveType::LineStrip, 2);
         sep_lines[0].position = fish_pos;
@@ -110,7 +110,7 @@ float SimMath::applyAlignment(std::shared_ptr<Fish> fish){
     //The angle has to be inverted. Not figured out yet but gives correct results on tests
     float align_ang = PI_M_2 - fish->getAlignAngle();
 
-    #ifdef DEBUG
+    #ifndef NDEBUG
         sf::Vector2f fish_pos = fish->getPosition();
         sf::VertexArray align_lines(sf::PrimitiveType::LineStrip, 2);
         align_lines[0].position = fish_pos;
@@ -130,7 +130,7 @@ float SimMath::applyCohesion(std::shared_ptr<Fish> fish){
     //sfml uses cordinate system with inverted y axis, adding "-" to y axis to shift into regular coordinate system.
     float coh_ang = cortesianToPolar(sf::Vector2f(coh_vec.x, -coh_vec.y));
 
-    #ifdef DEBUG
+    #ifndef NDEBUG
         sf::Vector2f fish_pos = fish->getPosition();
         sf::VertexArray coh_lines(sf::PrimitiveType::LineStrip, 2);
         coh_lines[0].position = fish_pos;
@@ -161,7 +161,7 @@ std::vector<std::shared_ptr<Fish>> SimMath::getCollisions(std::shared_ptr<Fish> 
                                              int _col_radius) {
     sf::Vector2f pos = fish->getPosition();
     std::vector<std::shared_ptr<Fish>> nearest = {};
-    #ifdef DEBUG
+    #ifndef NDEBUG
         sf::VertexArray lines(sf::PrimitiveType::LineStrip, fishes.size() * 2);
     #endif
     for (int i = 0; i < fishes.size(); i++) {
@@ -180,7 +180,7 @@ std::vector<std::shared_ptr<Fish>> SimMath::getCollisions(std::shared_ptr<Fish> 
             // std::cout << fish->name << " " << nearest.size() <<  " distance " <<  SimMath::getDistance(pos, target->getPosition()) << std::endl;
                 
             if ((PI / 4 < rel_angle && rel_angle < 7 * PI / 4)) {
-                #ifdef DEBUG
+                #ifndef NDEBUG
                     lines[i * 2 + 1].position = pos;
                     lines[i * 2 + 1].color = sf::Color::Black;
                     lines[i * 2].position = target->getPosition();
@@ -197,7 +197,7 @@ std::vector<std::shared_ptr<Fish>> SimMath::getCollisions(std::shared_ptr<Fish> 
             //TODO bugs with debug lines they appear at 0,0 coordinates
         }
     }
-    #ifdef DEBUG
+    #ifndef NDEBUG
         fish->setAffectLines(lines);
     #endif
 

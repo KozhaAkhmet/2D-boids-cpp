@@ -18,7 +18,7 @@ Fish::Fish(float _col_radius, float _speed, float _size, float _dir = 0,
     Fish::count++;
     this->name = "fish_" + std::to_string(count);
 }
-#ifdef DEBUG
+#ifndef NDEBUG
 void Fish::drawCollisionDebug(sf::RenderWindow& window) {
     drawTrimmedCircle(this->dir);
     window.draw(this->affect_lines);

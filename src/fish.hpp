@@ -32,7 +32,7 @@ public:
      void setSepVec(sf::Vector2f _sep_vec){sep_vec = _sep_vec;};
      void setAlignAngle(float rad){allign_ang_rad = rad;};
      void setCohesionVec(sf::Vector2f vec){this->coh_vec = vec;};
-     #ifdef DEBUG  
+     #ifndef NDEBUG  
           void drawCollisionDebug(sf::RenderWindow& window);
           void drawTrimmedCircle(float deg_value);
           void setDirLines(sf::VertexArray _sep_lines, sf::VertexArray _align_lines, sf::VertexArray _coh_lines){
@@ -56,7 +56,7 @@ public:
      sf::Vector2f getSepVec(){return sep_vec;};
      sf::Vector2f getCohVec(){return coh_vec;};
 
-     #ifdef DEBUG
+     #ifndef NDEBUG
           sf::VertexArray collision_lines;
           sf::VertexArray affect_lines;
           sf::VertexArray sep_lines;
