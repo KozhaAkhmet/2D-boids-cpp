@@ -7,6 +7,7 @@
 #include <string>
 #include "consts.hpp"
 
+//TODO Debug compile flags arent working
 class Fish : public sf::CircleShape {
 public:
      static int count;

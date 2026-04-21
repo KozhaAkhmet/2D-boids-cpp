@@ -10,6 +10,7 @@ Simulation::Simulation(unsigned int _window_size_x, unsigned int _window_size_y)
     : window_size_x(_window_size_x), window_size_y(_window_size_y) {
     for (const auto& file : std::filesystem::directory_iterator(SimMath::fish_icons_dir_path)) {
 		sf::Texture t;
+		//TODO add null check for res folder. Also change them in tests.
 		t.loadFromFile(file.path());
 		t.setSmooth(true);
 		t.generateMipmap();
