@@ -52,6 +52,8 @@ class Instance {
   void generate(std::mt19937& gen, std::uniform_real_distribution<float> dis,
                 int number_of_fish, int col_radius, float speed, float radius,
                 float dt);
+  void addFish(std::mt19937& gen, std::uniform_real_distribution<float> dis,
+              int col_radius, float speed, float radius, float dt);
   void checkBoundries(Fish& fish);
 
   ~Instance() {}
