@@ -34,3 +34,10 @@
 .vscode
 build
 .cache
+lib64
+bin
+include
+share
+lib
+pyvenv.cfg
+sfml-app
