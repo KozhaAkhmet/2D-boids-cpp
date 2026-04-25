@@ -43,3 +43,15 @@ or
 
 $ make
 ```
+
+## Benchmark 
+For benchmarking it compiled with -O2
+
+```bash
+
+$ clang++ fish.hpp fish.cpp main.cpp -lsfml-graphics -lsfml-window -lsfml-system -O2
+
+```
+
+**All tests made on a same machine**
+![Benchmark Example](BenchmarkV1.png)
