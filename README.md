@@ -42,3 +42,9 @@ or
 
 $ g++ main.cpp fish.cpp fish.hpp -o sfml-app -lsfml-graphics -lsfml-window -lsfml-system
 ```
+
+## Benchmarking
+Used the default cmake release configuration for benchmarking (-O3) and clang kit as toolchain.
+
+**All tests made on a same machine**
+![Benchmark Example](media/BenchmarkV2.png)
