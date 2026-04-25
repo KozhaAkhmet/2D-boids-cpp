@@ -19,7 +19,7 @@ int main() {
 	Simulation simulation{window_size.x, window_size.y};
 	simulation.generate(gen, dis, num_of_fish, col_radius, speed, icon_size, dt);
 
-	std::ofstream csv_file("framerate.csv");
+	std::ofstream csv_file("framerateV2.csv");
 	csv_file << "time_second,fps,fish_count\n";
 
 	sf::Clock clock;

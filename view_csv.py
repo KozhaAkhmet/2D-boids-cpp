@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-df = pd.read_csv("framerate.csv")
+df = pd.read_csv("framerateV2.csv")
 
 print("=== Framerate Data ===")
 print(df.to_string(index=False))
