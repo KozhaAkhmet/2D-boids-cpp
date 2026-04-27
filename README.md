@@ -12,16 +12,20 @@ As with most artificial life simulations, Boids is an example of emergent behavi
 
 (Reference: https://en.wikipedia.org/wiki/Boids)
 
-## Updates: 05.12.2024
-The boids and algorithm is not working correctly. Somewhat after moving to classes project become too bugged. Below are the known bugs yet to be solved. 
-    In any case, this state o project is now in releses as Stable v1. 
+## Update: 05.12.2024
+I think The boids and algorithm is not working properly. Somewhat, after moving project to classes it become too bugged. Below are the known bugs, yet to be solved. 
+    In any case, this state of project is now in releses as Stable v1. 
 ### Notes and Bugs
 - Bug: There is a bug with the direction variable in fish class which is not doing a full circle instead it does with extra 45 degrees.
 - Note: The fishes has a constant speed and the algorithm is based on the direction. The boid algorithm is not completely correct as it should been focused on the velocity vector.
 
+The graph is made by capturing fps during one minute while adding 20 fihes a second.
+![Benchmark V1](media/BenchmarkV1.png)
+
 ## Update: 20.04.2026
-After 2 years I decided to rewrite this project. Solved many bugs and did optimizations. The state before was partily working but VERY hard to understand, so I fixed the entire codebase and made it readable. Also, added manuel and unit tests to be sure the calculations works correctly. I tried to keep the best practices and hope it affected the result.
+After 2 years, I decided to rewrite this project. I solved many bugs and did some optimizations. The V1 was partially working and hard to understand, so I fixed the entire codebase and made it readable as possible. Also, added manuel and unit tests to be sure the calculations works correctly. Also, I tried to keep the best practices and hope efforts affected the result.
 
-The velocity vector is not incuded yet. Currectly he project relies on constant speed. Next time, I will be working on that.
+The velocity vector is not included yet. Currently, the project depends on constant speed instead. Next time I will be working on that.
 
-TODO add before-after performance table 
+The graph is made by capturing fps during one minute while adding 20 fihes a second.
+![Benchmark V2](media/BenchmarkV2.png)
